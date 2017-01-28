@@ -1,5 +1,5 @@
 import time
-import PowerMeter
+from physalia.power_meters.power_meter import PowerMeter
 
 
 class EmulatedPowerMeter(PowerMeter):
