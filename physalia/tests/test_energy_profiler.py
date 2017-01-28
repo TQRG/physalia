@@ -7,5 +7,5 @@ class TestMonitorEnergy(unittest.TestCase):
         @monitor_energy
         def useless_func():
             for i in range(1000):
-                i+i
+                i + i
         useless_func()
