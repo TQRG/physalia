@@ -1,0 +1,5 @@
+[MASTER]
+ignore=setup.py,docs/source/conf.py
+
+[MESSAGES CONTROL]
+disable=locally-disabled
