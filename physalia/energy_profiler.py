@@ -1,18 +1,18 @@
 import click
-from physalia.power_meters.emulated_power_meter import EmulatedPowerMeter
+from physalia.power_meters import EmulatedPowerMeter
 
-power_meter = EmulatedPowerMeter()
+POWER_METER = EmulatedPowerMeter()
 
 
 def start():
     """starts recording energy consumption"""
-    power_meter.start()
+    POWER_METER.start()
     click.secho('Started energy profiling', fg='green')
 
 
 def stop():
     """stops recording energy consumption"""
-    energy_consumption = power_meter.stop()
+    energy_consumption = POWER_METER.stop()
     click.secho(
         'Stopped energy profiling. '
         'Energy consumption: {:.6f} Joules'.format(energy_consumption),
@@ -21,6 +21,7 @@ def stop():
 
 
 def monitor_energy(func):
+    """decorator to measure energy consumption during a routine"""
     def inner(*args, **kwargs):
         start()
         func(*args, **kwargs)

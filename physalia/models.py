@@ -1,7 +1,7 @@
 import csv
 
 
-class Measurement:
+class Measurement(object):
     """Class for with energy measurement information
 
     Attributes:
@@ -14,17 +14,20 @@ class Measurement:
         energy_consumption_n    Sample size of measurements.
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # Eight is reasonable in this case.
+
     csv_storage = "./db.csv"
 
     def __init__(
-        self,
-        timestamp,
-        use_case,
-        device_model,
-        duration,
-        energy_consumption_mean,
-        energy_consumption_std,
-        energy_consumption_n
+            self,
+            timestamp,
+            use_case,
+            device_model,
+            duration,
+            energy_consumption_mean,
+            energy_consumption_std,
+            energy_consumption_n
     ):
         self.persisted = False
         self.timestamp = timestamp

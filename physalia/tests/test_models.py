@@ -1,6 +1,6 @@
 import unittest
-from physalia.models import Measurement
 import os
+from physalia.models import Measurement
 
 
 class TestMeasurement(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestMeasurement(unittest.TestCase):
 
     def test_persist(self):
         Measurement.csv_storage = self.TEST_CSV_STORAGE
-        self.addCleanup(self.clearDatabase)
+        self.addCleanup(self.clear_database)
         measurement = Measurement(
             1485634263.096069,
             'login',
@@ -19,10 +19,10 @@ class TestMeasurement(unittest.TestCase):
             30
         )
         measurement.persist()
-        with open(self.TEST_CSV_STORAGE, 'r') as f:
-            content = f.read()
+        with open(self.TEST_CSV_STORAGE, 'r') as file_desc:
+            content = file_desc.read()
         self.assertTrue(
             """1485634263.096069,login,Nexus5X,1000,1000,2,30""" in content)
 
-    def clearDatabase(self):
+    def clear_database(self):
         os.remove(self.TEST_CSV_STORAGE)

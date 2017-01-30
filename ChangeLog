@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* updataed database tests
 * added model Measurement
 * authoring and changelog by tox
 * configured tox
