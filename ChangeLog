@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+* added usecase
+* changed project structure; fixed a few lint checks
+* changed project structure; fixed a few lint checks
+* added pylint to checks
 * updataed database tests
 * added model Measurement
 * authoring and changelog by tox

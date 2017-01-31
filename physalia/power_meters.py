@@ -34,4 +34,6 @@ class EmulatedPowerMeter(PowerMeter):
         self.start_time = time.time()
 
     def stop(self):
-        return time.time() - self.start_time
+        duration = time.time() - self.start_time
+        energy_consumption = duration
+        return energy_consumption, duration
