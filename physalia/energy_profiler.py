@@ -2,6 +2,9 @@
 """
 
 import time
+import subprocess
+import types
+import click
 from physalia.power_meters import EmulatedPowerMeter
 from physalia.models import Measurement
 
@@ -23,12 +26,13 @@ class AndroidUseCase(object):
 
     power_meter = EmulatedPowerMeter()
 
-    def __init__(self, name, app_pkg, app_version, prepare, run):
+    def __init__(self, name, app_apk, app_pkg, app_version, prepare, run):
         self.name = name
+        self.app_apk = app_apk
         self.app_pkg = app_pkg
         self.app_version = app_version
-        self.prepare = prepare
-        self._run = run
+        self.prepare = types.MethodType(prepare, self)
+        self._run = types.MethodType(run, self)
 
     def run(self):
         """ Method that tuns the measurements of the routine stored in ```run```
@@ -53,3 +57,14 @@ class AndroidUseCase(object):
         """
         for _ in range(count):
             self.run()
+
+    def prepare_apk(self):
+        click.secho("Uninstalling {}".format(self.app_pkg), fg='blue')
+        subprocess.check_output(["adb", "uninstall", self.app_pkg])
+        click.secho("Installing {}".format(self.app_apk), fg='blue')
+        subprocess.check_output(["adb", "install", self.app_apk])
+        click.secho("Opening app {}".format(self.app_pkg), fg='blue')
+        subprocess.check_output(
+            "adb shell monkey -p {} --pct-syskeys 0 1".format(self.app_pkg),
+            shell=True
+        )

@@ -1,2 +1,2 @@
 click
-
+-e git+https://github.com/dtmilano/AndroidViewClient.git#egg=AndroidViewClient

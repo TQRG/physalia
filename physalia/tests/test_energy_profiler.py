@@ -1,25 +1,27 @@
 import unittest
+from com.dtmilano.android.viewclient import ViewClient
 from physalia.energy_profiler import AndroidUseCase
 from physalia.models import Measurement
 
 
 class TestMonitorEnergy(unittest.TestCase):
 
-    TEST_CSV_STORAGE = "./test2_db.csv"
+    TEST_CSV_STORAGE = "./test_db.csv"
 
-    def test_key(self):
+    def test_simple(self):
         Measurement.csv_storage = self.TEST_CSV_STORAGE
         self.addCleanup(Measurement.clear_database)
 
-        def prepare():
+        def prepare(use_case):
             prepare.count += 1
         prepare.count = 0
 
-        def run():
+        def run(use_case):
             run.count += 1
         run.count = 0
         use_case = AndroidUseCase(
             "Login",
+            None,
             "com.test.app",
             "0.01",
             prepare,
@@ -33,3 +35,29 @@ class TestMonitorEnergy(unittest.TestCase):
         with open(self.TEST_CSV_STORAGE, 'r') as file_desc:
             content = file_desc.read()
             self.assertEqual(len(content.split('\n')), 31)
+
+    def test_with_apk(self):
+        Measurement.csv_storage = self.TEST_CSV_STORAGE
+        self.addCleanup(Measurement.clear_database)
+
+        def prepare(use_case):
+            use_case.prepare_apk()
+            kwargs1 = {'ignoreversioncheck': False, 'verbose': False, 'ignoresecuredevice': False}
+            device, serialno = ViewClient.connectToDeviceOrExit(**kwargs1)
+            kwargs2 = {'forceviewserveruse': False, 'useuiautomatorhelper': False, 'ignoreuiautomatorkilled': True, 'autodump': False, 'startviewserver': True, 'compresseddump': True}
+            vc = ViewClient(device, serialno, **kwargs2)
+            print vc.dump(window='-1')
+
+        def run(use_case):
+            #culebra test
+            pass
+
+        use_case = AndroidUseCase(
+            "Login",
+            "./fdroid.apk",
+            "org.fdroid.fdroid",
+            "0.01",
+            prepare,
+            run
+        )
+        use_case.run()

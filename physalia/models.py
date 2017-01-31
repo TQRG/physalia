@@ -62,4 +62,7 @@ class Measurement(object):
 
     @classmethod
     def clear_database(cls):
-        os.remove(cls.csv_storage)
+        try:
+            os.remove(cls.csv_storage)
+        except OSError:
+            pass

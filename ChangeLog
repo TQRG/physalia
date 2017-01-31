@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* minor docstring fix in Android Use Case
+* added cli
 * major refactor; AndroidUseCase done and tested
 * added usecase
 * changed project structure; fixed a few lint checks
