@@ -7,7 +7,7 @@ from physalia.models import Measurement
 
 
 class AndroidUseCase(object):
-    """ Implementation an Android use case
+    """ Implementation of an Android use case
 
     Attributes:
         power_meter     power meter to use for measurements

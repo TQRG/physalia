@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* major refactor; AndroidUseCase done and tested
 * added usecase
 * changed project structure; fixed a few lint checks
 * changed project structure; fixed a few lint checks
