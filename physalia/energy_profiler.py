@@ -63,6 +63,8 @@ class AndroidUseCase(object):
         subprocess.check_output(["adb", "uninstall", self.app_pkg])
         click.secho("Installing {}".format(self.app_apk), fg='blue')
         subprocess.check_output(["adb", "install", self.app_apk])
+
+    def open_app(self):
         click.secho("Opening app {}".format(self.app_pkg), fg='blue')
         subprocess.check_output(
             "adb shell monkey -p {} --pct-syskeys 0 1".format(self.app_pkg),

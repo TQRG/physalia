@@ -1,3 +1,5 @@
+import sys
+from time import sleep
 import unittest
 from com.dtmilano.android.viewclient import ViewClient
 from physalia.energy_profiler import AndroidUseCase
@@ -40,16 +42,23 @@ class TestMonitorEnergy(unittest.TestCase):
         Measurement.csv_storage = self.TEST_CSV_STORAGE
         self.addCleanup(Measurement.clear_database)
 
-        def prepare(use_case):
-            use_case.prepare_apk()
+        def connect_device():
+            original_argv = sys.argv
+            sys.argv = original_argv[:1]
             kwargs1 = {'ignoreversioncheck': False, 'verbose': False, 'ignoresecuredevice': False}
             device, serialno = ViewClient.connectToDeviceOrExit(**kwargs1)
             kwargs2 = {'forceviewserveruse': False, 'useuiautomatorhelper': False, 'ignoreuiautomatorkilled': True, 'autodump': False, 'startviewserver': True, 'compresseddump': True}
             vc = ViewClient(device, serialno, **kwargs2)
-            print vc.dump(window='-1')
+            sys.argv = original_argv
+            return device, serialno, vc
+
+        def prepare(use_case):
+            use_case.prepare_apk()
+            device, serialno, vc = connect_device()
 
         def run(use_case):
-            #culebra test
+            use_case.open_app()
+            sleep(1)
             pass
 
         use_case = AndroidUseCase(
