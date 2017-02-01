@@ -19,6 +19,7 @@ class Measurement(object):
     """
 
     # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-arguments
     # Eight is reasonable in this case.
 
     csv_storage = "./db.csv"
@@ -62,6 +63,8 @@ class Measurement(object):
 
     @classmethod
     def clear_database(cls):
+        """ Clear database. Deletes CSV data file.
+        """
         try:
             os.remove(cls.csv_storage)
         except OSError:

@@ -8,6 +8,7 @@ Example:
 """
 
 # pylint: disable=no-value-for-parameter
+# pylint: disable=missing-docstring
 
 import subprocess
 import click

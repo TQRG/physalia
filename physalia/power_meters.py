@@ -1,3 +1,6 @@
+""" Models to interact with different power meters
+"""
+
 import abc
 import time
 

@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* added tests for androidviewclient usecase
 * attemp to integrate with adb
 * minor docstring fix in Android Use Case
 * added cli

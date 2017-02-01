@@ -1,5 +1,10 @@
+""" Test Models module
+"""
+
 import unittest
 from physalia.models import Measurement
+
+# pylint: disable=missing-docstring
 
 
 class TestMeasurement(unittest.TestCase):
