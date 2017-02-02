@@ -2,11 +2,20 @@
 """
 
 from time import sleep
+import subprocess
 import unittest
 from physalia.energy_profiler import AndroidUseCase, AndroidViewClientUseCase
 from physalia.models import Measurement
 
 # pylint: disable=missing-docstring
+
+
+def is_android_device_available():
+    """return devices"""
+    result = subprocess.check_output("adb devices", shell=True)
+    devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
+    devices = [device for device in devices if len(device) > 2]
+    return len(devices) > 0
 
 
 class TestMonitorEnergy(unittest.TestCase):
@@ -17,6 +26,8 @@ class TestMonitorEnergy(unittest.TestCase):
         Measurement.csv_storage = self.TEST_CSV_STORAGE
         self.addCleanup(Measurement.clear_database)
 
+    @unittest.skipUnless(is_android_device_available(),
+                         "Android device not found")
     def test_simple(self):
 
         def prepare(_):
@@ -43,6 +54,8 @@ class TestMonitorEnergy(unittest.TestCase):
             content = file_desc.read()
             self.assertEqual(len(content.split('\n')), 31)
 
+    @unittest.skipUnless(is_android_device_available(),
+                         "Android device not found")
     def test_with_apk(self):
         # pylint: disable=no-self-use
 
@@ -63,6 +76,8 @@ class TestMonitorEnergy(unittest.TestCase):
         )
         use_case.run()
 
+    @unittest.skipUnless(is_android_device_available(),
+                         "Android device not found")
     def test_android_vc_use_case(self):
 
         def prepare(_):
@@ -70,7 +85,7 @@ class TestMonitorEnergy(unittest.TestCase):
 
         def run(use_case):
             use_case.open_app()
-            sleep(1)
+            sleep(2)
             use_case.view_client.dump(window=-1)
             self.assertTrue(
                 use_case.view_client.findViewWithText(u'''What's New''')

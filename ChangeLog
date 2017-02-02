@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* added fdroid.apk for tests
+* implemented and tested android use case; fixed all pylints
 * added tests for androidviewclient usecase
 * attemp to integrate with adb
 * minor docstring fix in Android Use Case
