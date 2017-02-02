@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* skipping tests when android devices are not found
+* added requirements for dev
 * added fdroid.apk for tests
 * implemented and tested android use case; fixed all pylints
 * added tests for androidviewclient usecase

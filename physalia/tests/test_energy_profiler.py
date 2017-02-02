@@ -11,7 +11,7 @@ from physalia.models import Measurement
 
 
 def is_android_device_available():
-    """return devices"""
+    """get available android devices"""
     result = subprocess.check_output("adb devices", shell=True)
     devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
     devices = [device for device in devices if len(device) > 2]
@@ -66,7 +66,7 @@ class TestMonitorEnergy(unittest.TestCase):
             use_case.open_app()
             sleep(1)
 
-        use_case = AndroidUseCase(
+        android_use_case = AndroidUseCase(
             "OpenApp",
             "./fdroid.apk",
             "org.fdroid.fdroid",
@@ -74,7 +74,7 @@ class TestMonitorEnergy(unittest.TestCase):
             prepare,
             run
         )
-        use_case.run()
+        android_use_case.run()
 
     @unittest.skipUnless(is_android_device_available(),
                          "Android device not found")
