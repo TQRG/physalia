@@ -25,7 +25,7 @@ def tool(runner):
     def run():
         subprocess.check_output(runner, shell=True)
     use_case = AndroidUseCase('login', 'com.test.app', '12', prepare, run)
-    use_case.run_experiment()
+    use_case.profile(verbose=True)
 
 
 if __name__ == '__main__':

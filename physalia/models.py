@@ -85,12 +85,18 @@ class Measurement(object):
     @classmethod
     def get_unique_apps(cls):
         """ Get all unique apps existing in the database
+
+        Returns:
+            List of unique apps.
         """
         return cls._get_unique_from_column(cls.COLUMN_APP_PKG)
 
     @classmethod
     def get_unique_use_cases(cls):
         """ Get all unique use cases
+
+        Returns:
+            List of unique use cases.
         """
         return cls._get_unique_from_column(cls.COLUMN_USE_CASE)
 
@@ -107,18 +113,13 @@ class Measurement(object):
             ]
 
     @classmethod
-    def describe_app_use_case(cls, app, use_case):
+    def describe(cls, measurements):
         """ Get descriptive statistics for time and energy
-        consumption of an application use case
-
-        Args:
-            app (string): Application package.
-            use_case (string): Name of the use case
+        consumption for a set of measurements
 
         Returns:
             Tuple of Energy consumption mean, std, Duration mean, std.
         """
-        measurements = cls.get_all_entries_of_app_use_case(app, use_case)
         len_measurements = len(measurements)
         if len_measurements == 0:
             return
@@ -142,3 +143,18 @@ class Measurement(object):
             duration_mean,
             duration_std,
         )
+
+    @classmethod
+    def describe_app_use_case(cls, app, use_case):
+        """ Get descriptive statistics for time and energy
+        consumption of an application use case
+
+        Args:
+            app (string): Application package.
+            use_case (string): Name of the use case
+
+        Returns:
+            Tuple of Energy consumption mean, std, Duration mean, std.
+        """
+        measurements = cls.get_all_entries_of_app_use_case(app, use_case)
+        return cls.describe(measurements)

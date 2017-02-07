@@ -46,7 +46,7 @@ class TestMonitorEnergy(unittest.TestCase):
             run
         )
         count = 30
-        use_case.run_experiment(count)
+        use_case.profile_and_persist(count)
         self.assertEqual(prepare.count, count)
         self.assertEqual(run.count, count)
 

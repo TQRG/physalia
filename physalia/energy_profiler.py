@@ -65,7 +65,7 @@ class AndroidUseCase(object):
         self.power_meter.start()
         self._run()
         energy_consumption, duration = self.power_meter.stop()
-        measurement = Measurement(
+        return Measurement(
             time.time(),
             self.name,
             self.app_pkg,
@@ -74,13 +74,25 @@ class AndroidUseCase(object):
             duration,
             energy_consumption,
         )
-        measurement.persist()
 
-    def run_experiment(self, count=30):
-        """ Runs a batch of experiments
+    def profile(self, verbose=True, count=30):
+        """ Runs a batch of measurements
         """
-        for _ in range(count):
-            self.run()
+        results = [self.run() for _ in range(count)]
+        if verbose:
+            click.secho("Energy consumption results for {}: "
+                        "{:.3f} Joules (s = {:.3f}).\n"
+                        "It took {:.1f} seconds (s = {:.1f})."
+                        .format(self.app_pkg, *Measurement.describe(results)),
+                        fg='green')
+        return results
+
+    def profile_and_persist(self, verbose=True, count=30):
+        """ Measures a batch of measurements and save it for
+        later comparison
+        """
+        for measurement in self.profile(verbose, count):
+            measurement.persist()
 
     def prepare_apk(self):
         """Reinstalls app in the Android device

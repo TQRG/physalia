@@ -1,5 +1,5 @@
 [MASTER]
-ignore=setup.py,docs/source/conf.py
+ignore=setup.py,docs/source/conf.py,physalia/third_party/monsoon.py,src
 
 [MESSAGES CONTROL]
 disable=locally-disabled

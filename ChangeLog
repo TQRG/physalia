@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* exclude third party from flake8
+* added monsoon logger by google
+* implemented some queries to the csv database
 * skipping tests when android devices are not found
 * added requirements for dev
 * added fdroid.apk for tests
