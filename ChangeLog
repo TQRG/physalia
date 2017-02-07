@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* added not persisted profiling method; verbose mode to output  profile results
 * exclude third party from flake8
 * added monsoon logger by google
 * implemented some queries to the csv database

@@ -29,34 +29,34 @@ class AndroidUseCase(object):
 
     power_meter = EmulatedPowerMeter()
 
-    def __init__(self, name, app_apk, app_pkg, app_version, prepare, run):
+    def __init__(self, name, app_apk, app_pkg, app_version,
+                 run, prepare=None, cleanup=None):
         self.name = name
         self.app_apk = app_apk
         self.app_pkg = app_pkg
         self.app_version = app_version
-        self._prepare = types.MethodType(prepare, self)
         self._run = types.MethodType(run, self)
+        if prepare:
+            self._prepare = types.MethodType(prepare, self)
+        if cleanup:
+            self._cleanup = types.MethodType(cleanup, self)
 
-    def get_device_model(self, serialno=None):
-        """ Finds out which is the current connected device model
-        """
-        # pylint: disable=no-self-use
+    def _prepare(self):
+        # pylint: disable=method-hidden
+        pass
 
-        if serialno:
-            command = ("adb shell -s {} "
-                       "getprop ro.product.model").format(serialno)
-        else:
-            command = "adb shell getprop ro.product.model"
-        model = subprocess.check_output(
-            command,
-            shell=True
-        ).strip()
-        return model
+    def _cleanup(self):
+        # pylint: disable=method-hidden
+        pass
 
     def prepare(self):
-        """ Method that preparates environment for running
+        """ Method that prepares environment for running
         """
         self._prepare()
+
+    def cleanup(self):
+        """ Method that cleans environment after running
+        """
 
     def run(self):
         """ Method that tuns the measurements of the routine stored in ```run```
@@ -93,6 +93,22 @@ class AndroidUseCase(object):
         """
         for measurement in self.profile(verbose, count):
             measurement.persist()
+
+    def get_device_model(self, serialno=None):
+        """ Finds out which is the current connected device model
+        """
+        # pylint: disable=no-self-use
+
+        if serialno:
+            command = ("adb shell -s {} "
+                       "getprop ro.product.model").format(serialno)
+        else:
+            command = "adb shell getprop ro.product.model"
+        model = subprocess.check_output(
+            command,
+            shell=True
+        ).strip()
+        return model
 
     def prepare_apk(self):
         """Reinstalls app in the Android device

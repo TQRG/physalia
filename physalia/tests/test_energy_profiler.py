@@ -42,8 +42,8 @@ class TestMonitorEnergy(unittest.TestCase):
             None,
             "com.test.app",
             "0.01",
-            prepare,
-            run
+            run,
+            prepare
         )
         count = 30
         use_case.profile_and_persist(count)
@@ -71,17 +71,14 @@ class TestMonitorEnergy(unittest.TestCase):
             "./fdroid.apk",
             "org.fdroid.fdroid",
             "0.01",
-            prepare,
-            run
+            run,
+            prepare
         )
         android_use_case.run()
 
     @unittest.skipUnless(is_android_device_available(),
                          "Android device not found")
     def test_android_vc_use_case(self):
-
-        def prepare(_):
-            pass
 
         def run(use_case):
             use_case.open_app()
@@ -96,7 +93,6 @@ class TestMonitorEnergy(unittest.TestCase):
             "./fdroid.apk",
             "org.fdroid.fdroid",
             "0.01",
-            prepare,
             run
         )
         use_case.run()
