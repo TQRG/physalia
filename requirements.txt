@@ -1,3 +1,7 @@
 click
 numpy
 -e git+https://github.com/dtmilano/AndroidViewClient.git#egg=AndroidViewClient
+
+#monsoon
+python-gflags
+pyserial
