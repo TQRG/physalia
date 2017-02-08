@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* added cleanup; added wait for id
+* refresh method in android view client; added kill app method
+* added cleanup to use cases
 * added not persisted profiling method; verbose mode to output  profile results
 * exclude third party from flake8
 * added monsoon logger by google

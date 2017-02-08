@@ -137,7 +137,6 @@ class AndroidUseCase(object):
             "adb shell am force-stop {}".format(self.app_pkg),
             shell=True
         )
-    
 
 
 class AndroidViewClientUseCase(AndroidUseCase):
@@ -196,8 +195,8 @@ class AndroidViewClientUseCase(AndroidUseCase):
                 continue
             break
 
-    def wait_for_id(self, identifier):
+    def wait_for_id(self, view_id):
         """Refresh AndroidViewClient until view id found
         """
-        while self.view_client.findViewById(identifier) is None:
+        while self.view_client.findViewById(view_id) is None:
             self.refresh()
