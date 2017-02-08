@@ -127,6 +127,16 @@ class AndroidUseCase(object):
             shell=True
         )
 
+    def kill_app(self):
+        """Kills the app of this use case
+        """
+        click.secho("Killing app {}".format(self.app_pkg), fg='blue')
+        subprocess.check_output(
+            "adb shell am force-stop {}".format(self.app_pkg),
+            shell=True
+        )
+    
+
 
 class AndroidViewClientUseCase(AndroidUseCase):
     """ Implementation of an Android use case
@@ -172,4 +182,12 @@ class AndroidViewClientUseCase(AndroidUseCase):
         self.start_view_client()
         self._prepare()
         time.sleep(1)
-        self.view_client.dump(window='-1')
+        self.refresh()
+
+    def refresh(self):
+        while True:
+            try:
+                self.view_client.dump(window='-1')
+            except RuntimeError:
+                continue
+            break
