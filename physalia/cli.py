@@ -1,4 +1,4 @@
-""" Command Line Interface for Physalia.
+"""Command Line Interface for Physalia.
 
 Example:
     Examples can be given using either the ``Example`` or ``Examples``
@@ -19,7 +19,7 @@ from physalia.energy_profiler import AndroidUseCase
 @click.command()
 @click.argument('runner')
 def tool(runner):
-
+    """Run the tool with CLI arguments."""
     def prepare():
         pass
 

@@ -1,6 +1,13 @@
 CHANGES
 =======
 
+* minor fix to profile with persistence method
+* added pydostyle
+* added hypothesis testing to measurement
+* sample: added use case fort search
+* added wait for text method (androidviewclient)
+* added sample for F-Droid"
+* added cleanup; added wait for id
 * added cleanup; added wait for id
 * refresh method in android view client; added kill app method
 * added cleanup to use cases

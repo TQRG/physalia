@@ -1,5 +1,4 @@
-"""Models that require persistence
-"""
+"""Models that require persistence."""
 
 import csv
 import os
@@ -8,7 +7,7 @@ from scipy.stats import ttest_ind
 
 
 class Measurement(object):
-    """Class for with energy measurement information
+    """Energy measurement information.
 
     Attributes:
         timestamp               When the execution started.
@@ -37,7 +36,7 @@ class Measurement(object):
             device_model,
             duration,
             energy_consumption
-    ):
+    ):  # noqa: D102
         self.persisted = False
         self.timestamp = timestamp
         self.use_case = use_case
@@ -48,7 +47,7 @@ class Measurement(object):
         self.energy_consumption = energy_consumption
 
     def persist(self):
-        """ Store measurement in the database."""
+        """Store measurement in the database."""
         if self.persisted:
             return False
         else:
@@ -68,8 +67,7 @@ class Measurement(object):
 
     @classmethod
     def clear_database(cls):
-        """ Clear database. Deletes CSV data file.
-        """
+        """Clear database. Deletes CSV data file."""
         try:
             os.remove(cls.csv_storage)
         except OSError:
@@ -77,15 +75,14 @@ class Measurement(object):
 
     @classmethod
     def _get_unique_from_column(cls, column_index):
-        """ Get unique values of the given column
-        """
+        """Get unique values of the given column."""
         with open(cls.csv_storage, 'rb') as csvfile:
             csv_reader = csv.reader(csvfile)
             return {row[column_index] for row in csv_reader}
 
     @classmethod
     def get_unique_apps(cls):
-        """ Get all unique apps existing in the database
+        """Get all unique apps existing in the database.
 
         Returns:
             List of unique apps.
@@ -94,7 +91,7 @@ class Measurement(object):
 
     @classmethod
     def get_unique_use_cases(cls):
-        """ Get all unique use cases
+        """Get all unique use cases.
 
         Returns:
             List of unique use cases.
@@ -103,8 +100,7 @@ class Measurement(object):
 
     @classmethod
     def get_all_entries_of_app_use_case(cls, app, use_case):
-        """ Get all entries that have a specific app and use case
-        """
+        """Get all entries that have a specific app and use case."""
         with open(cls.csv_storage, 'rb') as csvfile:
             csv_reader = csv.reader(csvfile)
             return [
@@ -115,8 +111,10 @@ class Measurement(object):
 
     @classmethod
     def describe(cls, measurements):
-        """ Get descriptive statistics for time and energy
-        consumption for a set of measurements
+        """Descriptive statistics for a set of measurements.
+
+        Get descriptive statistics for time and energy
+        consumption for a set of measurements.
 
         Returns:
             Tuple of Energy consumption mean, std, Duration mean, std.
@@ -147,8 +145,10 @@ class Measurement(object):
 
     @classmethod
     def describe_app_use_case(cls, app, use_case):
-        """ Get descriptive statistics for time and energy
-        consumption of an application use case
+        """Descriptive statistics for a stored App use case.
+
+        Get descriptive statistics for time and energy
+        consumption of an application use case.
 
         Args:
             app (string): Application package.
@@ -162,7 +162,9 @@ class Measurement(object):
 
     @classmethod
     def hypothesis_test(cls, sample_a, sample_b):
-        """ Uses Welch's t-test to check whether energy consumption
+        """Perform hypothesis test over two samples of measurements.
+
+        Uses Welch's t-test to check whether energy consumption
         is different in the populations of samples a and b.
 
         Args:

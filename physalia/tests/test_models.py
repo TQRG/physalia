@@ -85,7 +85,7 @@ class TestMeasurement(unittest.TestCase):
             self.assertAlmostEqual(first, second, places=3)
 
     def test_hypothesis_test(self):
-        # numpy.random.seed(1)
+        numpy.random.seed(1)
         count = 30
         energy_consumptions_a = numpy.random.normal(loc=10.0,
                                                     scale=1.0,

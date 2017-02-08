@@ -1,5 +1,4 @@
-""" Module with main classes for energy profiling
-"""
+"""Module with main classes for energy profiling."""
 
 import time
 import subprocess
@@ -12,7 +11,7 @@ from physalia.models import Measurement
 
 
 class AndroidUseCase(object):
-    """ Implementation of an Android use case
+    """Implementation of an Android use case.
 
     Attributes:
         power_meter     power meter to use for measurements
@@ -30,7 +29,7 @@ class AndroidUseCase(object):
     power_meter = EmulatedPowerMeter()
 
     def __init__(self, name, app_apk, app_pkg, app_version,
-                 run, prepare=None, cleanup=None):
+                 run, prepare=None, cleanup=None):  # noqa: D102
         self.name = name
         self.app_apk = app_apk
         self.app_pkg = app_pkg
@@ -50,18 +49,15 @@ class AndroidUseCase(object):
         pass
 
     def prepare(self):
-        """ Method that prepares environment for running
-        """
+        """Method that prepares environment for running."""
         self._prepare()
 
     def cleanup(self):
-        """ Method that cleans environment after running
-        """
+        """Method that cleans environment after running."""
         self._cleanup()
 
     def run(self):
-        """ Method that tuns the measurements of the routine stored in ```run```
-        """
+        """Measure the routine stored in `_run`."""
         self.prepare()
         self.power_meter.start()
         self._run()
@@ -78,8 +74,7 @@ class AndroidUseCase(object):
         )
 
     def profile(self, verbose=True, count=30):
-        """ Runs a batch of measurements
-        """
+        """Run a batch of measurements."""
         results = [self.run() for _ in range(count)]
         if verbose:
             click.secho("Energy consumption results for {}: "
@@ -90,17 +85,14 @@ class AndroidUseCase(object):
         return results
 
     def profile_and_persist(self, verbose=True, count=30):
-        """ Measures a batch of measurements and save it for
-        later comparison
-        """
+        """Measure a batch of measurements and save it."""
         results = self.profile(verbose, count)
         for measurement in results:
             measurement.persist()
         return results
 
     def get_device_model(self, serialno=None):
-        """ Finds out which is the current connected device model
-        """
+        """Find out which is the currently connected device model."""
         # pylint: disable=no-self-use
 
         if serialno:
@@ -115,16 +107,14 @@ class AndroidUseCase(object):
         return model
 
     def prepare_apk(self):
-        """Reinstalls app in the Android device
-        """
+        """Reinstall app in the Android device."""
         click.secho("Uninstalling {}".format(self.app_pkg), fg='blue')
         subprocess.check_output(["adb", "uninstall", self.app_pkg])
         click.secho("Installing {}".format(self.app_apk), fg='blue')
         subprocess.check_output(["adb", "install", self.app_apk])
 
     def open_app(self):
-        """Opens app in the device
-        """
+        """Open app in the device."""
         click.secho("Opening app {}".format(self.app_pkg), fg='blue')
         subprocess.check_output(
             "adb shell monkey -p {} --pct-syskeys 0 1".format(self.app_pkg),
@@ -132,8 +122,7 @@ class AndroidUseCase(object):
         )
 
     def kill_app(self):
-        """Kills the app of this use case
-        """
+        """Tell the device to kill the app of this use case."""
         click.secho("Killing app {}".format(self.app_pkg), fg='blue')
         subprocess.check_output(
             "adb shell am force-stop {}".format(self.app_pkg),
@@ -142,22 +131,20 @@ class AndroidUseCase(object):
 
 
 class AndroidViewClientUseCase(AndroidUseCase):
-    """ Implementation of an Android use case
-    that uses Android view client
-    """
+    """`AndroidUseCase` to use with `AndroidViewClient`."""
 
     def get_device_model(self, serialno=None):
-        """ Finds out which is the current connected device model.
-        It uses the serialno if a device is already connected
-        using AndroidviewClient
+        """Find out which is the current connected device model.
+
+        Use serialno if a device is already connected
+        using `AndroidViewClient`.
         """
         if serialno is None:
             serialno = self.serialno
         super(AndroidViewClientUseCase, self).get_device_model(serialno)
 
     def start_view_client(self):
-        """ Setups AndroidViewClient
-        """
+        """Setup `AndroidViewClient`."""
         # pylint: disable=attribute-defined-outside-init
 
         original_argv = sys.argv
@@ -179,8 +166,9 @@ class AndroidViewClientUseCase(AndroidUseCase):
         self.view_client = view_client
 
     def prepare(self):
-        """ Method that preparation environment for running.
-        It setups Android View Client.
+        """Prepare environment for running.
+
+        Setup Android View Client in order to run experiments.
         """
         self.start_view_client()
         self._prepare()
@@ -188,8 +176,7 @@ class AndroidViewClientUseCase(AndroidUseCase):
         self.refresh()
 
     def refresh(self):
-        """Refresh AndroidViewClient
-        """
+        """Refresh `AndroidViewClient`."""
         while True:
             try:
                 self.view_client.dump(window='-1')
@@ -198,14 +185,11 @@ class AndroidViewClientUseCase(AndroidUseCase):
             break
 
     def wait_for_id(self, view_id):
-        """Refresh AndroidViewClient until view id found
-        """
+        """Refresh `AndroidViewClient` until view id is found."""
         while self.view_client.findViewById(view_id) is None:
             self.refresh()
 
     def wait_for_text(self, text):
-        """Refresh AndroidViewClient until a view with
-        the given text is found
-        """
+        """Refresh `AndroidViewClient` until text is found."""
         while self.view_client.findViewWithText(text) is None:
             self.refresh()

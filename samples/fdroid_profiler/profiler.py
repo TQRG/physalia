@@ -9,6 +9,7 @@ from physalia.energy_profiler import AndroidViewClientUseCase
 # this is just a script -- uppercase variables would look odd
 
 def run_open_app(use_case):
+    """Simply open F-droid."""
     use_case.open_app()
     sleep(2)
     use_case.refresh()
@@ -16,6 +17,7 @@ def run_open_app(use_case):
 
 
 def cleanup(use_case):
+    """Close the app and wait a second."""
     use_case.kill_app()
     sleep(1)
 
@@ -31,17 +33,19 @@ open_app_use_case = AndroidViewClientUseCase(
 )
 
 open_app_use_case.prepare_apk()
-# open_app_use_case.profile()
+open_app_use_case.profile_and_persist()
 
 
 # View a listed app
 def prepare(use_case):
+    """Open app and wait until it loads."""
     use_case.open_app()
     use_case.refresh()
     use_case.wait_for_id("org.fdroid.fdroid:id/icon")
 
 
 def run_view_listed_app(use_case):
+    """Interaction of getting info about an application."""
     app_icon = use_case.view_client.findViewById("org.fdroid.fdroid:id/icon")
     app_icon.touch()
     use_case.wait_for_id("org.fdroid.fdroid:id/ll_description")
@@ -57,10 +61,10 @@ view_listed_app_use_case = AndroidViewClientUseCase(
     cleanup=cleanup
 )
 
-# view_listed_app_use_case.profile()
-# search_for_app
+view_listed_app_use_case.profile_and_persist()
 
 def run_search_for_app(use_case):
+    """Interaction of searching for an application."""
     search = use_case.view_client.findViewById("org.fdroid.fdroid:id/action_search")
     search.touch()
     sleep(1)
@@ -77,4 +81,4 @@ search_app_use_case = AndroidViewClientUseCase(
     cleanup=cleanup
 )
 
-search_app_use_case.run()
+search_app_use_case.profile_and_persist()
