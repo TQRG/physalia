@@ -57,6 +57,7 @@ class AndroidUseCase(object):
     def cleanup(self):
         """ Method that cleans environment after running
         """
+        self._cleanup()
 
     def run(self):
         """ Method that tuns the measurements of the routine stored in ```run```
@@ -65,6 +66,7 @@ class AndroidUseCase(object):
         self.power_meter.start()
         self._run()
         energy_consumption, duration = self.power_meter.stop()
+        self.cleanup()
         return Measurement(
             time.time(),
             self.name,
@@ -185,9 +187,17 @@ class AndroidViewClientUseCase(AndroidUseCase):
         self.refresh()
 
     def refresh(self):
+        """Refresh AndroidViewClient
+        """
         while True:
             try:
                 self.view_client.dump(window='-1')
             except RuntimeError:
                 continue
             break
+
+    def wait_for_id(self, identifier):
+        """Refresh AndroidViewClient until view id found
+        """
+        while self.view_client.findViewById(identifier) is None:
+            self.refresh()
