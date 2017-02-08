@@ -200,3 +200,10 @@ class AndroidViewClientUseCase(AndroidUseCase):
         """
         while self.view_client.findViewById(view_id) is None:
             self.refresh()
+
+    def wait_for_text(self, text):
+        """Refresh AndroidViewClient until a view with
+        the given text is found
+        """
+        while self.view_client.findViewWithText(text) is None:
+            self.refresh()
