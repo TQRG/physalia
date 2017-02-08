@@ -57,5 +57,24 @@ view_listed_app_use_case = AndroidViewClientUseCase(
     cleanup=cleanup
 )
 
-view_listed_app_use_case.profile()
+# view_listed_app_use_case.profile()
 # search_for_app
+
+def run_search_for_app(use_case):
+    search = use_case.view_client.findViewById("org.fdroid.fdroid:id/action_search")
+    search.touch()
+    sleep(1)
+    use_case.device.type("Frood")
+    use_case.wait_for_text("Froody")
+
+search_app_use_case = AndroidViewClientUseCase(
+    "SearchApp",
+    "./fdroid.apk",
+    "org.fdroid.fdroid",
+    "0.01",
+    run_search_for_app,
+    prepare=prepare,
+    cleanup=cleanup
+)
+
+search_app_use_case.run()
