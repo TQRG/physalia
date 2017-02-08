@@ -1,4 +1,5 @@
-"""
+""" Command Line Interface for Physalia.
+
 Example:
     Examples can be given using either the ``Example`` or ``Examples``
     sections. Sections support any reStructuredText formatting, including
