@@ -2,6 +2,7 @@
 """
 
 import unittest
+import numpy
 from physalia.models import Measurement
 
 # pylint: disable=missing-docstring
@@ -82,3 +83,28 @@ class TestMeasurement(unittest.TestCase):
         # pairwise assertion:
         for (first, second) in zip(real_stats, expected_stats):
             self.assertAlmostEqual(first, second, places=3)
+
+    def test_hypothesis_test(self):
+        # numpy.random.seed(1)
+        count = 30
+        energy_consumptions_a = numpy.random.normal(loc=10.0,
+                                                    scale=1.0,
+                                                    size=count)
+        sample_a = [
+            create_measurement(
+                energy_consumption=energy_consumptions_a[i]
+            )
+            for i in range(count)
+        ]
+        energy_consumptions_b = numpy.random.normal(loc=12.0,
+                                                    scale=1.0,
+                                                    size=count)
+        sample_b = [
+            create_measurement(
+                energy_consumption=energy_consumptions_b[i]
+            )
+            for i in range(count)
+        ]
+        test, pvalue = Measurement.hypothesis_test(sample_a, sample_b)
+        print (test, pvalue)
+        self.assertLess(pvalue, 0.05)

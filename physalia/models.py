@@ -4,6 +4,7 @@
 import csv
 import os
 import numpy
+from scipy.stats import ttest_ind
 
 
 class Measurement(object):
@@ -158,3 +159,22 @@ class Measurement(object):
         """
         measurements = cls.get_all_entries_of_app_use_case(app, use_case)
         return cls.describe(measurements)
+
+    @classmethod
+    def hypothesis_test(cls, sample_a, sample_b):
+        """ Uses Welch's t-test to check whether energy consumption
+        is different in the populations of samples a and b.
+
+        Args:
+            sample_a (list of Measurement): measurements of sample a
+            sample_b (list of Measurement): measurements of sample b
+
+        Returns:
+            t (float): The calculated t-statistic
+            prob (float): The two-tailed p-value
+        """
+        return ttest_ind(
+            [measurement.energy_consumption for measurement in sample_a],
+            [measurement.energy_consumption for measurement in sample_b],
+            equal_var=False
+        )
