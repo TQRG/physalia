@@ -93,8 +93,10 @@ class AndroidUseCase(object):
         """ Measures a batch of measurements and save it for
         later comparison
         """
-        for measurement in self.profile(verbose, count):
+        results = self.profile(verbose, count)
+        for measurement in results:
             measurement.persist()
+        return results
 
     def get_device_model(self, serialno=None):
         """ Finds out which is the current connected device model
