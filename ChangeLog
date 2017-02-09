@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* perfom lint checks (including docstring checks)
 * minor fix to profile with persistence method
 * added pydostyle
 * added hypothesis testing to measurement
