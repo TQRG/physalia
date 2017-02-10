@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* changing some settings on tox
 * trying to implement check_adb without testing
 * integrating tox with travis
 * fixed bug with defininf androidviewclientusecase prepare and cleanup; skip some tests when adb is not available
