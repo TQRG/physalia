@@ -38,6 +38,7 @@ spotify_use_case = AndroidViewClientUseCase(
 )
 
 # spotify_use_case.profile_and_persist()
+spotify_use_case.run()
 
 # SongFlip - Free Music & Player
 # com.hypermedia.songflip
@@ -65,6 +66,7 @@ songflip_use_case = AndroidViewClientUseCase(
 )
 
 # songflip_use_case.profile_and_persist()
+songflip_use_case.run()
 
 # SoundCloud
 
@@ -95,6 +97,7 @@ soundcloud_use_case = AndroidViewClientUseCase(
 )
 
 # soundcloud_use_case.profile_and_persist()
+soundcloud_use_case.run()
 
 # Deezer
 # deezer.android.app

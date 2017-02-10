@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* config tox to use all checks in a specific python versio; disable pylint fixme check
 * Update README.md
 * merge conflict
 * changing some settings on tox
