@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/TQRG/physalia.svg?branch=master)](https://travis-ci.org/TQRG/physalia)
+
 # Physalia
 
 Energy tests framework for Android
