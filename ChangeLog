@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+* trying to implement check_adb without testing
+* integrating tox with travis
+* fixed bug with defininf androidviewclientusecase prepare and cleanup; skip some tests when adb is not available
+* Update .travis.yml
+* Update .travis.yml
+* Adding .travis.yml
+* Update README.md
+* sample to profile audio apps
 * perfom lint checks (including docstring checks)
 * minor fix to profile with persistence method
 * added pydostyle

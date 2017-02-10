@@ -164,7 +164,8 @@ class AndroidViewClientUseCase(AndroidUseCase):
         """Setup `AndroidViewClient`.
 
         Args:
-            force (boolean): force start even if it was previously done (default False)."""
+            force (boolean): force start even if it was previously done (default False).
+        """
         # pylint: disable=attribute-defined-outside-init
 
         if self.view_client is None or force is True:
