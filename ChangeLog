@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* Update README.md
+* sample to profile audio apps
 * perfom lint checks (including docstring checks)
 * minor fix to profile with persistence method
 * added pydostyle
