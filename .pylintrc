@@ -3,7 +3,7 @@ ignore=setup.py,docs/source/conf.py,physalia/third_party/monsoon.py,src
 extension-pkg-whitelist=numpy
 
 [MESSAGES CONTROL]
-disable=locally-disabled
+disable=locally-disabled,fixme
 
 [TYPECHECK]
 ignored-modules = numpy
