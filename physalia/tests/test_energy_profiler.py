@@ -4,14 +4,20 @@
 from time import sleep
 import subprocess
 import unittest
+from whichcraft import which
 from physalia.energy_profiler import AndroidUseCase, AndroidViewClientUseCase
 from physalia.models import Measurement
 
 # pylint: disable=missing-docstring
 
+def check_adb():
+    """Check whether adb is available."""
+    return which("adb") is not None
 
 def is_android_device_available():
-    """get available android devices"""
+    """Get available android devices."""
+    if check_adb() is None:
+        return False
     result = subprocess.check_output("adb devices", shell=True)
     devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
     devices = [device for device in devices if len(device) > 2]

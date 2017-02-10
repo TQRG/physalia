@@ -106,10 +106,14 @@ class AndroidUseCase(object):
         ).strip()
         return model
 
-    def prepare_apk(self):
-        """Reinstall app in the Android device."""
+    def uninstall_app(self):
+        """Uninstall app of the Android device."""
         click.secho("Uninstalling {}".format(self.app_pkg), fg='blue')
         subprocess.check_output(["adb", "uninstall", self.app_pkg])
+
+    def prepare_apk(self):
+        """Reinstall app in the Android device."""
+        self.uninstall_app()
         click.secho("Installing {}".format(self.app_apk), fg='blue')
         subprocess.check_output(["adb", "install", self.app_apk])
 
@@ -133,6 +137,19 @@ class AndroidUseCase(object):
 class AndroidViewClientUseCase(AndroidUseCase):
     """`AndroidUseCase` to use with `AndroidViewClient`."""
 
+    # pylint: disable=too-many-arguments
+    # Eight is reasonable in this case.
+
+    def __init__(self, name, app_apk, app_pkg, app_version,
+                 run, prepare=None, cleanup=None):  # noqa: D102
+        super(AndroidViewClientUseCase, self).__init__(
+            name, app_apk, app_pkg, app_version,
+            run, prepare, cleanup
+        )
+        self.device = None
+        self.serialno = None
+        self.view_client = None
+
     def get_device_model(self, serialno=None):
         """Find out which is the current connected device model.
 
@@ -143,27 +160,31 @@ class AndroidViewClientUseCase(AndroidUseCase):
             serialno = self.serialno
         super(AndroidViewClientUseCase, self).get_device_model(serialno)
 
-    def start_view_client(self):
-        """Setup `AndroidViewClient`."""
+    def start_view_client(self, force=False):
+        """Setup `AndroidViewClient`.
+
+        Args:
+            force (boolean): force start even if it was previously done (default False)."""
         # pylint: disable=attribute-defined-outside-init
 
-        original_argv = sys.argv
-        sys.argv = original_argv[:1]
-        kwargs1 = {'ignoreversioncheck': False,
-                   'verbose': False,
-                   'ignoresecuredevice': False}
-        device, serialno = ViewClient.connectToDeviceOrExit(**kwargs1)
-        kwargs2 = {'forceviewserveruse': False,
-                   'useuiautomatorhelper': False,
-                   'ignoreuiautomatorkilled': True,
-                   'autodump': False,
-                   'startviewserver': True,
-                   'compresseddump': True}
-        view_client = ViewClient(device, serialno, **kwargs2)
-        sys.argv = original_argv
-        self.device = device
-        self.serialno = serialno
-        self.view_client = view_client
+        if self.view_client is None or force is True:
+            original_argv = sys.argv
+            sys.argv = original_argv[:1]
+            kwargs1 = {'ignoreversioncheck': False,
+                       'verbose': False,
+                       'ignoresecuredevice': False}
+            device, serialno = ViewClient.connectToDeviceOrExit(**kwargs1)
+            kwargs2 = {'forceviewserveruse': False,
+                       'useuiautomatorhelper': False,
+                       'ignoreuiautomatorkilled': True,
+                       'autodump': False,
+                       'startviewserver': True,
+                       'compresseddump': True}
+            view_client = ViewClient(device, serialno, **kwargs2)
+            sys.argv = original_argv
+            self.device = device
+            self.serialno = serialno
+            self.view_client = view_client
 
     def prepare(self):
         """Prepare environment for running.
@@ -186,10 +207,28 @@ class AndroidViewClientUseCase(AndroidUseCase):
 
     def wait_for_id(self, view_id):
         """Refresh `AndroidViewClient` until view id is found."""
-        while self.view_client.findViewById(view_id) is None:
+        view = self.view_client.findViewById(view_id)
+        while view is None:
             self.refresh()
+            view = self.view_client.findViewById(view_id)
+        return view
 
     def wait_for_text(self, text):
         """Refresh `AndroidViewClient` until text is found."""
-        while self.view_client.findViewWithText(text) is None:
+        view = self.view_client.findViewWithText(text)
+        while view is None:
             self.refresh()
+            view = self.view_client.findViewWithText(text)
+        return view
+
+    def wait_for_content_description(self, content_description):
+        """Refresh `AndroidViewClient` until content description is found."""
+        view = self.view_client.findViewWithContentDescription(
+            content_description
+        )
+        while view is None:
+            self.refresh()
+            view = self.view_client.findViewWithContentDescription(
+                content_description
+            )
+        return view
