@@ -16,7 +16,7 @@ def check_adb():
 
 def is_android_device_available():
     """Get available android devices."""
-    if check_adb() is None:
+    if not check_adb():
         return False
     result = subprocess.check_output("adb devices", shell=True)
     devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
