@@ -1,4 +1,8 @@
-"""Example of using Physalia to profile F-Droid."""
+"""Example of using Physalia to profile F-Droid.
+
+In this script free top apps for music streaming were profiled in terms of energy consumption in common use cases.
+
+"""
 
 from time import sleep
 from physalia.energy_profiler import AndroidViewClientUseCase
@@ -129,6 +133,17 @@ deezer_use_case.run()
 
 # YOUZEEK
 # com.youzeek.AndroidApp
+
+youzeek_use_case = AndroidViewClientUseCase(
+    "PlaySong",
+    "./apks/YOUZEEK Free Music Streaming_v4.4.6_apkpure.com.apk",
+    "com.youzeek.AndroidApp",
+    "4.4.6",
+    run_youzeek,
+    prepare=prepare_youzeek,
+    cleanup=cleanup
+)
+
 
 # Free music for YouTube: Stream
 # com.djit.apps.stream

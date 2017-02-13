@@ -4,6 +4,7 @@
 import unittest
 import numpy
 from physalia.models import Measurement
+from physalia.utils import greek_alphabet
 
 # pylint: disable=missing-docstring
 
@@ -23,6 +24,27 @@ def create_measurement(use_case='login',
         energy_consumption  # energy consumption
     )
 
+def create_random_samples(count=30, seed=1):
+    numpy.random.seed(seed)
+    energy_consumptions_a = numpy.random.normal(loc=10.0,
+                                                scale=1.0,
+                                                size=count)
+    sample_a = [
+        create_measurement(
+            energy_consumption=energy_consumptions_a[i]
+        )
+        for i in range(count)
+    ]
+    energy_consumptions_b = numpy.random.normal(loc=12.0,
+                                                scale=1.0,
+                                                size=count)
+    sample_b = [
+        create_measurement(
+            energy_consumption=energy_consumptions_b[i]
+        )
+        for i in range(count)
+    ]
+    return sample_a, sample_b
 
 class TestMeasurement(unittest.TestCase):
     TEST_CSV_STORAGE = "./test_models_db.csv"
@@ -85,26 +107,37 @@ class TestMeasurement(unittest.TestCase):
             self.assertAlmostEqual(first, second, places=3)
 
     def test_hypothesis_test(self):
-        numpy.random.seed(1)
-        count = 30
-        energy_consumptions_a = numpy.random.normal(loc=10.0,
-                                                    scale=1.0,
-                                                    size=count)
-        sample_a = [
-            create_measurement(
-                energy_consumption=energy_consumptions_a[i]
-            )
-            for i in range(count)
-        ]
-        energy_consumptions_b = numpy.random.normal(loc=12.0,
-                                                    scale=1.0,
-                                                    size=count)
-        sample_b = [
-            create_measurement(
-                energy_consumption=energy_consumptions_b[i]
-            )
-            for i in range(count)
-        ]
+        sample_a, sample_b = create_random_samples()
         test, pvalue = Measurement.hypothesis_test(sample_a, sample_b)
-        print (test, pvalue)
         self.assertLess(pvalue, 0.05)
+
+    def test_fancy_hypothesis_test(self):
+        from StringIO import StringIO
+        from string import Template
+
+        sample_a, sample_b = create_random_samples()
+        out = StringIO()
+        Measurement.fancy_hypothesis_test(
+            sample_a, sample_b,
+            "login with email",
+            "login with facebook",
+            out=out
+        )
+        output = out.getvalue().strip()
+        print Template(
+            "Hypothesis testing:\n"
+            "H0: $rho login with email eq $rho login with facebook.\n"
+            "H1: $rho login with email neq $rho login with facebook.\n"
+            "\n"
+            "Applying Welch's t-test with $alpha=0.05\n"
+        ).substitute(greek_alphabet)
+        self.assertEqual(
+            output,
+            Template(
+                "Hypothesis testing:\n"
+                "H0: $rho login with email eq $rho login with facebook.\n"
+                "H1: $rho login with email neq $rho login with facebook.\n"
+                "\n"
+                "Applying Welch's t-test with $alpha=0.05\n"
+            ).substitute(greek_alphabet)
+        )

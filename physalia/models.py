@@ -2,6 +2,7 @@
 
 import csv
 import os
+import sys
 import numpy
 from scipy.stats import ttest_ind
 
@@ -180,3 +181,19 @@ class Measurement(object):
             [measurement.energy_consumption for measurement in sample_b],
             equal_var=False
         )
+
+    @classmethod
+    def fancy_hypothesis_test(cls, sample_a, sample_b,
+                              name_a, name_b, out=sys.stdout):
+        from string import Template
+        from physalia.utils import greek_alphabet
+        out.write(
+            Template(
+                "Hypothesis testing:\n"
+                "\t$H0: $mu login with email = $mu login with facebook.\n"
+                "\t$H1: $mu login with email $neq $mu login with facebook.\n"
+                "\n"
+                "Applying Welch's t-test with $alpha=0.05\n"
+            ).substitute(greek_alphabet)
+        )
+        return cls.hypothesis_test(sample_a, sample_b)
