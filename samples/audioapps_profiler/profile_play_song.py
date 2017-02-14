@@ -132,7 +132,7 @@ deezer_use_case.run()
 # YOUZEEK
 # com.youzeek.AndroidApp
 
-def run_youzeek(use_case):
+def run_youzeek():
     sleep(PLAY_DURATION)
 
 def prepare_youzeek(use_case):
