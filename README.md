@@ -17,5 +17,3 @@ def run():
 use_case = AndroidUseCase('login', 'com.test.app', '12', run, prepare)
 use_case.profile()
 ````
-
-
