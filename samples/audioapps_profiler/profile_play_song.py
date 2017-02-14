@@ -7,6 +7,8 @@ from physalia.energy_profiler import AndroidViewClientUseCase
 # pylint: disable=invalid-name
 # this is just a script -- uppercase variables would look odd
 
+PLAY_DURATION = 30 # seconds
+
 def cleanup(use_case):
     """Close the app and wait a second."""
     use_case.uninstall_app()
@@ -25,7 +27,7 @@ def prepare_spotify(use_case):
 def run_spotify_play_song(use_case):
     use_case.wait_for_text("SHUFFLE PLAY").touch()
     # TODO: wait until song is actually playing
-    sleep(30)
+    sleep(PLAY_DURATION)
 
 spotify_use_case = AndroidViewClientUseCase(
     "PlaySong",
@@ -45,7 +47,7 @@ spotify_use_case.run()
 
 def run_songflip(use_case):
     use_case.wait_for_id("com.hypermedia.songflip:id/song_artist").touch()
-    sleep(30)
+    sleep(PLAY_DURATION)
 
 def prepare_songflip(use_case):
     use_case.prepare_apk()
@@ -73,7 +75,7 @@ songflip_use_case.run()
 def run_soundcloud(use_case):
     use_case.wait_for_id("com.soundcloud.android:id/track_list_item").touch()
     # TODO: wait until song is actually playing
-    sleep(30)
+    sleep(PLAY_DURATION)
 
 def prepare_soundcloud(use_case):
     use_case.prepare_apk()
@@ -105,7 +107,7 @@ soundcloud_use_case.run()
 def run_deezer(use_case):
     use_case.wait_for_id("deezer.android.app:id/mosaic_cover_subtitle").touch()
     # TODO: wait until song is actually playing
-    sleep(30)
+    sleep(PLAY_DURATION)
 
 def prepare_deezer(use_case):
     use_case.prepare_apk()
@@ -129,6 +131,31 @@ deezer_use_case.run()
 
 # YOUZEEK
 # com.youzeek.AndroidApp
+
+def run_youzeek(use_case):
+    sleep(PLAY_DURATION)
+
+def prepare_youzeek(use_case):
+    use_case.prepare_apk()
+    use_case.open_app()
+    use_case.wait_for_id("com.youzeek.AndroidApp:id/login_facebook").touch()
+    use_case.wait_for_content_description("Interstitial close button").touch()
+    use_case.wait_for_text("Next").touch()
+    use_case.wait_for_text("Next").touch()
+    use_case.wait_for_text("Next").touch()
+    use_case.wait_for_text("Maybe later").touch()
+    use_case.wait_for_id("com.youzeek.AndroidApp:id/songTitle").touch()
+
+youzeek_use_case = AndroidViewClientUseCase(
+    "PlaySong",
+    "./apks/YOUZEEK Free Music Streaming_v4.4.6_apkpure.com.apk",
+    "com.youzeek.AndroidApp",
+    "4.4.6",
+    run_youzeek,
+    prepare=prepare_youzeek,
+    cleanup=cleanup
+)
+
 
 # Free music for YouTube: Stream
 # com.djit.apps.stream
