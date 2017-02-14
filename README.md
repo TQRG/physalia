@@ -15,5 +15,7 @@ def run():
 	pass
 	
 use_case = AndroidUseCase('login', 'com.test.app', '12', run, prepare)
-use_case.run_experiment()
+use_case.profile()
 ````
+
+
