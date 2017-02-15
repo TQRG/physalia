@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+* addded youzeek to the sample audio profiler
+* addded youzeek to the sample audio profiler
+* updated README.md example
+* updated README.md example
+* added coverage to tox
 * config tox to use all checks in a specific python versio; disable pylint fixme check
 * Update README.md
 * merge conflict

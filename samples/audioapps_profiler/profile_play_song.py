@@ -14,6 +14,9 @@ def cleanup(use_case):
     use_case.uninstall_app()
     sleep(1)
 
+def run(_):
+    sleep(PLAY_DURATION)
+
 # Spotify
 def prepare_spotify(use_case):
     use_case.prepare_apk()
@@ -23,59 +26,43 @@ def prepare_spotify(use_case):
     use_case.wait_for_text("Home")
     use_case.wait_for_text("Your Music").touch()
     use_case.wait_for_text("Songs").touch()
-
-def run_spotify_play_song(use_case):
     use_case.wait_for_text("SHUFFLE PLAY").touch()
-    # TODO: wait until song is actually playing
-    sleep(PLAY_DURATION)
 
 spotify_use_case = AndroidViewClientUseCase(
     "PlaySong",
     "./apks/Spotify Music_v7.5.0.1076_apkpure.com.apk",
     "com.spotify.music",
     "7.5.0.1076",
-    run_spotify_play_song,
+    run,
     prepare=prepare_spotify,
     cleanup=cleanup
 )
 
-# spotify_use_case.profile_and_persist()
-spotify_use_case.run()
+spotify_use_case.profile_and_persist()
 
 # SongFlip - Free Music & Player
 # com.hypermedia.songflip
 
-def run_songflip(use_case):
-    use_case.wait_for_id("com.hypermedia.songflip:id/song_artist").touch()
-    sleep(PLAY_DURATION)
-
 def prepare_songflip(use_case):
     use_case.prepare_apk()
     use_case.open_app()
-    # use_case.start_view_client()
-    # use_case.refresh()
     use_case.wait_for_text("Start").touch()
     use_case.wait_for_id("com.hypermedia.songflip:id/song_title").touch()
+    use_case.wait_for_id("com.hypermedia.songflip:id/song_artist").touch()
 
 songflip_use_case = AndroidViewClientUseCase(
     "PlaySong",
     "./apks/SongFlip Free Music Player_v1.1.8_apkpure.com.apk",
     "com.hypermedia.songflip",
     "1.1.8",
-    run_songflip,
+    run,
     prepare=prepare_songflip,
     cleanup=cleanup
 )
 
-# songflip_use_case.profile_and_persist()
-songflip_use_case.run()
+songflip_use_case.profile_and_persist()
 
 # SoundCloud
-
-def run_soundcloud(use_case):
-    use_case.wait_for_id("com.soundcloud.android:id/track_list_item").touch()
-    # TODO: wait until song is actually playing
-    sleep(PLAY_DURATION)
 
 def prepare_soundcloud(use_case):
     use_case.prepare_apk()
@@ -87,27 +74,22 @@ def prepare_soundcloud(use_case):
         "com.soundcloud.android:id/tab_layout"
     ).children[2].touch()
     use_case.wait_for_text("Liked tracks").touch()
+    use_case.wait_for_id("com.soundcloud.android:id/track_list_item").touch()
 
 soundcloud_use_case = AndroidViewClientUseCase(
     "PlaySong",
     "./apks/SoundCloud Music Audio_v2017.01.24-release_apkpure.com.apk",
     "com.soundcloud.android",
     "2017.01.24-release",
-    run_soundcloud,
+    run,
     prepare=prepare_soundcloud,
     cleanup=cleanup
 )
 
-# soundcloud_use_case.profile_and_persist()
-soundcloud_use_case.run()
+soundcloud_use_case.profile_and_persist()
 
 # Deezer
 # deezer.android.app
-
-def run_deezer(use_case):
-    use_case.wait_for_id("deezer.android.app:id/mosaic_cover_subtitle").touch()
-    # TODO: wait until song is actually playing
-    sleep(PLAY_DURATION)
 
 def prepare_deezer(use_case):
     use_case.prepare_apk()
@@ -116,24 +98,22 @@ def prepare_deezer(use_case):
     use_case.wait_for_text("Log in with email address").touch()
     use_case.wait_for_text("Facebook").touch()
     use_case.wait_for_content_description("Not Now ").touch()
+    use_case.wait_for_id("deezer.android.app:id/mosaic_cover_subtitle").touch()
 
 deezer_use_case = AndroidViewClientUseCase(
     "PlaySong",
     "./apks/Deezer Music Song Streaming_v5.4.0.88_apkpure.com.apk",
     "deezer.android.app",
     "5.4.0.88",
-    run_deezer,
+    run,
     prepare=prepare_deezer,
     cleanup=cleanup
 )
 
-deezer_use_case.run()
+deezer_use_case.profile_and_persist()
 
 # YOUZEEK
 # com.youzeek.AndroidApp
-
-def run_youzeek():
-    sleep(PLAY_DURATION)
 
 def prepare_youzeek(use_case):
     use_case.prepare_apk()
@@ -151,7 +131,7 @@ youzeek_use_case = AndroidViewClientUseCase(
     "./apks/YOUZEEK Free Music Streaming_v4.4.6_apkpure.com.apk",
     "com.youzeek.AndroidApp",
     "4.4.6",
-    run_youzeek,
+    run,
     prepare=prepare_youzeek,
     cleanup=cleanup
 )
@@ -159,14 +139,64 @@ youzeek_use_case = AndroidViewClientUseCase(
 
 # Free music for YouTube: Stream
 # com.djit.apps.stream
+# FIXME this is an app that reproduces youtube videos - SKIP IT
 
+def prepare_djit(use_case):
+    use_case.prepare_apk()
+    use_case.open_app()
+    use_case.start_view_client()
+    use_case.wait_for_text("OK").touch()
+    use_case.wait_for_id("com.djit.apps.stream:id/view_row_video")
+
+djit_use_case = AndroidViewClientUseCase(
+    "PlaySong",
+    "./apks/Free music for YouTube Stream_v1.12.00_apkpure.com.apk",
+    "com.djit.apps.stream",
+    "1.12.00",
+    run,
+    prepare=prepare_djit,
+    cleanup=cleanup
+)
+
+djit_use_case.profile_and_persist()
 
 # Panasonic Music Streaming
 # com.panasonic.avc.diga.wwmusicstreaming
+# Skipped because the purpose of this app is to stream music to devices
+# in the network
+
 
 # Musicsense - Music Streaming
 # com.tentracks.musicsense
 
-# TubeMP3
+def prepare_musicsense(use_case):
+    use_case.prepare_apk()
+    use_case.open_app()
+    use_case.wait_for_text("Allow").touch()
+    use_case.wait_for_text("Allow").touch()
+    use_case.wait_for_text("LOG IN").touch()
+    use_case.wait_for_text("START LISTENING").touch()
+
+musicsense_use_case = AndroidViewClientUseCase(
+    "PlaySong",
+    "./apks/Musicsense Music Streaming_v1.1.15_apkpure.com.apk",
+    "com.tentracks.musicsense",
+    "1.1.15",
+    run,
+    prepare=prepare_musicsense,
+    cleanup=cleanup
+)
+
+musicsense_use_case.profile_and_persist()
+
+# Napster
+# com.rhapsody.napster
+# Could not find a freemium version
+
+# TIDAL
+# com.aspiro.tidal
+# Does not provide a free version (only tria)
 
 # Apple Music
+# com.apple.android.music
+# Does not have a free streaming service
