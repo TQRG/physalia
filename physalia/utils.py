@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Generic utils that are helpful in physalia."""
 
-greek_alphabet = {
+GREEK_ALPHABET = {
     'Alpha':    u'\u0391',
     'Beta':     u'\u0392',
     'Gamma':    u'\u0393',
@@ -53,5 +54,4 @@ greek_alphabet = {
     'neq':      u'≠',
     'H0':       u'H₀',
     'H1':       u'H₁',
-    
 }

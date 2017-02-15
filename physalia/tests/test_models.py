@@ -2,9 +2,10 @@
 """
 
 import unittest
+from mock import patch, MagicMock
 import numpy
 from physalia.models import Measurement
-from physalia.utils import greek_alphabet
+from physalia.utils import GREEK_ALPHABET
 
 # pylint: disable=missing-docstring
 
@@ -108,36 +109,61 @@ class TestMeasurement(unittest.TestCase):
 
     def test_hypothesis_test(self):
         sample_a, sample_b = create_random_samples()
-        test, pvalue = Measurement.hypothesis_test(sample_a, sample_b)
+        _, pvalue = Measurement.hypothesis_test(sample_a, sample_b)
         self.assertLess(pvalue, 0.05)
 
     def test_fancy_hypothesis_test(self):
         from StringIO import StringIO
         from string import Template
 
-        sample_a, sample_b = create_random_samples()
-        out = StringIO()
-        Measurement.fancy_hypothesis_test(
-            sample_a, sample_b,
-            "login with email",
-            "login with facebook",
-            out=out
-        )
-        output = out.getvalue().strip()
-        print Template(
-            "Hypothesis testing:\n"
-            "H0: $rho login with email eq $rho login with facebook.\n"
-            "H1: $rho login with email neq $rho login with facebook.\n"
-            "\n"
-            "Applying Welch's t-test with $alpha=0.05\n"
-        ).substitute(greek_alphabet)
-        self.assertEqual(
-            output,
-            Template(
-                "Hypothesis testing:\n"
-                "H0: $rho login with email eq $rho login with facebook.\n"
-                "H1: $rho login with email neq $rho login with facebook.\n"
-                "\n"
-                "Applying Welch's t-test with $alpha=0.05\n"
-            ).substitute(greek_alphabet)
-        )
+        # sample_a, sample_b = create_random_samples()
+        with patch('physalia.models.Measurement.hypothesis_test',
+                   MagicMock(return_value=(0, 0.0001))):
+            out = StringIO()
+            Measurement.fancy_hypothesis_test(
+                None, None,
+                "login with email",
+                "login with facebook",
+                out=out
+            )
+            output = out.getvalue()
+
+            self.assertEqual(
+                output,
+                Template(
+                    "Hypothesis testing:\n"
+                    "\t$H0: $mu login with email = $mu login with facebook.\n"
+                    "\t$H1: $mu login with email $neq $mu login with facebook.\n"
+                    "\n"
+                    "Applying Welch's t-test with $alpha=0.05, the null"
+                    " hypothesis is rejected (p-value=<0.001).\n"
+                    "Thus, one can say that the means of populations"
+                    " \"login with email\" and \"login with facebook\" are"
+                    " different.\n"
+                ).substitute(GREEK_ALPHABET)
+            )
+        with patch('physalia.models.Measurement.hypothesis_test',
+                   MagicMock(return_value=(0, 0.061231))):
+            out = StringIO()
+            Measurement.fancy_hypothesis_test(
+                None, None,
+                "login with email",
+                "login with facebook",
+                out=out
+            )
+            output = out.getvalue()
+
+            self.assertEqual(
+                output,
+                Template(
+                    "Hypothesis testing:\n"
+                    "\t$H0: $mu login with email = $mu login with facebook.\n"
+                    "\t$H1: $mu login with email $neq $mu login with facebook.\n"
+                    "\n"
+                    "Applying Welch's t-test with $alpha=0.05, the null"
+                    " hypothesis is not rejected (p-value=0.061).\n"
+                    "Thus, it was not possible to find evidence that"
+                    " the means of populations login with email and "
+                    "login with facebook are different.\n"
+                ).substitute(GREEK_ALPHABET)
+            )

@@ -1,5 +1,6 @@
 [MASTER]
-ignore=setup.py,docs/source/conf.py,physalia/third_party/monsoon.py,src
+ignore=setup.py,docs/source/conf.py,physalia/third_party/monsoon.py,src,venv
+
 extension-pkg-whitelist=numpy
 
 [MESSAGES CONTROL]
