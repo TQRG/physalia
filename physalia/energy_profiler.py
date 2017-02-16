@@ -186,6 +186,8 @@ class AndroidViewClientUseCase(AndroidUseCase):
             self.device = device
             self.serialno = serialno
             self.view_client = view_client
+        #always refresh
+        self.refresh()
 
     def prepare(self):
         """Prepare environment for running.
@@ -194,8 +196,6 @@ class AndroidViewClientUseCase(AndroidUseCase):
         """
         self.start_view_client()
         self._prepare()
-        time.sleep(1)
-        self.refresh()
 
     def refresh(self):
         """Refresh `AndroidViewClient`."""

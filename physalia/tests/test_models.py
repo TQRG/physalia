@@ -152,7 +152,6 @@ class TestMeasurement(unittest.TestCase):
                 out=out
             )
             output = out.getvalue()
-
             self.assertEqual(
                 output,
                 Template(

@@ -1,13 +1,13 @@
 CHANGES
 =======
 
-* merge conflict solved
+* tox.ini small changein requirements path
+* Fancy hypothesis test (#1)
 * sample play song: added music sense
 * addded youzeek to the sample audio profiler
 * addded youzeek to the sample audio profiler
 * updated README.md example
 * updated README.md example
-* started fancy hypothesis
 * added coverage to tox
 * config tox to use all checks in a specific python versio; disable pylint fixme check
 * Update README.md
