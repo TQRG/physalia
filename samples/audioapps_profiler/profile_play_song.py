@@ -1,4 +1,8 @@
-"""Example of using Physalia to profile F-Droid."""
+"""Example of using Physalia to profile F-Droid.
+
+In this script free top apps for music streaming were profiled
+in terms of energy consumption in common use cases.
+"""
 
 from time import sleep
 from physalia.energy_profiler import AndroidViewClientUseCase
@@ -38,7 +42,7 @@ spotify_use_case = AndroidViewClientUseCase(
     cleanup=cleanup
 )
 
-spotify_use_case.profile_and_persist()
+# spotify_use_case.profile_and_persist()
 
 # SongFlip - Free Music & Player
 # com.hypermedia.songflip
@@ -136,29 +140,11 @@ youzeek_use_case = AndroidViewClientUseCase(
     cleanup=cleanup
 )
 
+youzeek_use_case.profile_and_persist()
 
 # Free music for YouTube: Stream
 # com.djit.apps.stream
 # FIXME this is an app that reproduces youtube videos - SKIP IT
-
-def prepare_djit(use_case):
-    use_case.prepare_apk()
-    use_case.open_app()
-    use_case.start_view_client()
-    use_case.wait_for_text("OK").touch()
-    use_case.wait_for_id("com.djit.apps.stream:id/view_row_video")
-
-djit_use_case = AndroidViewClientUseCase(
-    "PlaySong",
-    "./apks/Free music for YouTube Stream_v1.12.00_apkpure.com.apk",
-    "com.djit.apps.stream",
-    "1.12.00",
-    run,
-    prepare=prepare_djit,
-    cleanup=cleanup
-)
-
-djit_use_case.profile_and_persist()
 
 # Panasonic Music Streaming
 # com.panasonic.avc.diga.wwmusicstreaming
