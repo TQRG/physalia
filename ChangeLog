@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* refresh viewclient after starting it
 * tox.ini small changein requirements path
 * Fancy hypothesis test (#1)
 * sample play song: added music sense
