@@ -37,9 +37,17 @@ class TestAssert(unittest.TestCase):
         for measurement in existing_sample_one+existing_sample_two:
             measurement.persist()
         
-        asserts.consumption_lower_than_app(sample_low_energy, "com.persisted")
-        asserts.consumption_lower_than_app(sample_low_energy, "com.persisted", "login")
+        asserts.consumption_lower_than_app(
+            sample_low_energy, "com.persisted"
+        )
+        asserts.consumption_lower_than_app(
+            sample_low_energy, "com.persisted", "login"
+        )
         with self.assertRaises(Exception) as context:
-            asserts.consumption_lower_than_app(sample, "com.persisted")
+            asserts.consumption_lower_than_app(
+                sample_high_energy, "com.persisted"
+            )
         with self.assertRaises(Exception) as context:
-            asserts.consumption_lower_than_app(sample, "com.persisted", "login")
+            asserts.consumption_lower_than_app(
+                sample_high_energy, "com.persisted", "login"
+            )
