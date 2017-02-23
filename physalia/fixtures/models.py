@@ -24,6 +24,7 @@ def create_random_sample(mean, std,
                          use_case='login',
                          count=30, seed=1):
     """Create a sample of measurements."""
+    # pylint: disable=too-many-arguments
     if seed is not None:
         numpy.random.seed(seed)
     energy_consumptions = numpy.random.normal(loc=mean,
@@ -42,9 +43,6 @@ def create_random_samples(count=30, seed=1):
     """Create a sample of measurements."""
     if seed is not None:
         numpy.random.seed(seed)
-    energy_consumptions_a = numpy.random.normal(loc=10.0,
-                                                scale=1.0,
-                                                size=count)
-    sample_a = create_random_sample(10.0, 1.0, seed=None)
-    sample_b = create_random_sample(12.0, 1.0, seed=None)
+    sample_a = create_random_sample(10.0, 1.0, count=count, seed=None)
+    sample_b = create_random_sample(12.0, 1.0, count=count, seed=None)
     return sample_a, sample_b

@@ -2,14 +2,16 @@
 
 import unittest
 from physalia import asserts
-from physalia.fixtures.models import *
+from physalia.fixtures.models import create_random_sample
+
+# pylint: disable=missing-docstring
 
 class TestAssert(unittest.TestCase):
 
     def test_consumption_below(self):
         sample = create_random_sample(10, 1)
         asserts.consumption_below(sample, 11)
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             asserts.consumption_below(sample, 9)
 
     def test_consumption_lower_than_app(self):
@@ -36,18 +38,18 @@ class TestAssert(unittest.TestCase):
 
         for measurement in existing_sample_one+existing_sample_two:
             measurement.persist()
-        
+
         asserts.consumption_lower_than_app(
             sample_low_energy, "com.persisted"
         )
         asserts.consumption_lower_than_app(
             sample_low_energy, "com.persisted", "login"
         )
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             asserts.consumption_lower_than_app(
                 sample_high_energy, "com.persisted"
             )
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             asserts.consumption_lower_than_app(
                 sample_high_energy, "com.persisted", "login"
             )
