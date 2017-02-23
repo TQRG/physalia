@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* added physalia assert
 * refresh viewclient after starting it
 * tox.ini small changein requirements path
 * Fancy hypothesis test (#1)

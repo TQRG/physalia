@@ -1,5 +1,4 @@
-""" Test Energy Profiler module
-"""
+"""Test Energy Profiler module."""
 
 from time import sleep
 import subprocess
