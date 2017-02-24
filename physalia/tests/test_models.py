@@ -3,49 +3,13 @@
 
 import unittest
 from mock import patch, MagicMock
-import numpy
 from physalia.models import Measurement
 from physalia.utils import GREEK_ALPHABET
+from physalia.fixtures.models import create_measurement
+from physalia.fixtures.models import create_random_samples
+from physalia.fixtures.models import create_random_sample
 
 # pylint: disable=missing-docstring
-
-
-def create_measurement(use_case='login',
-                       app_pkg='com.package',
-                       duration=2,
-                       energy_consumption=30):
-    """Fake data for measurement"""
-    return Measurement(
-        1485634263.096069,  # timestamp
-        use_case,           # use_case
-        app_pkg,            # application package
-        '1.0.0',            # version
-        'Nexus 5X',         # device model
-        duration,           # duration
-        energy_consumption  # energy consumption
-    )
-
-def create_random_samples(count=30, seed=1):
-    numpy.random.seed(seed)
-    energy_consumptions_a = numpy.random.normal(loc=10.0,
-                                                scale=1.0,
-                                                size=count)
-    sample_a = [
-        create_measurement(
-            energy_consumption=energy_consumptions_a[i]
-        )
-        for i in range(count)
-    ]
-    energy_consumptions_b = numpy.random.normal(loc=12.0,
-                                                scale=1.0,
-                                                size=count)
-    sample_b = [
-        create_measurement(
-            energy_consumption=energy_consumptions_b[i]
-        )
-        for i in range(count)
-    ]
-    return sample_a, sample_b
 
 class TestMeasurement(unittest.TestCase):
     TEST_CSV_STORAGE = "./test_models_db.csv"
@@ -166,3 +130,29 @@ class TestMeasurement(unittest.TestCase):
                     "login with facebook are different.\n"
                 ).substitute(GREEK_ALPHABET)
             )
+
+    @unittest.skip(True)
+    def test_get_energy_ranking(self):
+        sample = (
+            create_random_sample(10, 1, app_pkg="com.app1") +
+            create_random_sample(11, 1, app_pkg="com.app2") +
+            create_random_sample(12, 1, app_pkg="com.app3") +
+            create_random_sample(13, 1, app_pkg="com.app4") +
+            create_random_sample(14, 1, app_pkg="com.app5") +
+            create_random_sample(15, 1, app_pkg="com.app6")
+        )
+        for measurement in sample:
+            measurement.persist()
+        ranking = Measurement.get_energy_ranking()
+        print ranking
+        self.assertEqual(
+            [item.app_pkg for item in ranking],
+            [
+                "com.app1",
+                "com.app2",
+                "com.app3",
+                "com.app4",
+                "com.app5",
+                "com.app6",
+            ]
+        )

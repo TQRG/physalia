@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+* created failing test for consumption lower than app
+* creating asserts for energy consumption
+* created failing test for consumption lower than app
+* added physalia assert
 * refresh viewclient after starting it
 * tox.ini small changein requirements path
 * Fancy hypothesis test (#1)

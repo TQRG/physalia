@@ -3,6 +3,7 @@
 import csv
 import os
 import sys
+from itertools import groupby
 import numpy
 from scipy.stats import ttest_ind
 
@@ -100,15 +101,31 @@ class Measurement(object):
         return cls._get_unique_from_column(cls.COLUMN_USE_CASE)
 
     @classmethod
-    def get_all_entries_of_app_use_case(cls, app, use_case):
-        """Get all entries that have a specific app and use case."""
+    def get_all_entries_of_app(cls, app, use_case):
+        """Get all entries that have a specific app and use case.
+
+        If the use_case is None, all use_cases are retrieved.
+        """
         with open(cls.csv_storage, 'rb') as csvfile:
             csv_reader = csv.reader(csvfile)
             return [
                 Measurement(*row) for row in csv_reader
-                if row[cls.COLUMN_USE_CASE] == use_case and
+                if row[cls.COLUMN_USE_CASE] == use_case or use_case is None and
                 row[cls.COLUMN_APP_PKG] == app
             ]
+
+    @classmethod
+    def mean_energy_consumption(cls, measurements):
+        """Get mean energy consumption from a set of measurements."""
+        len_measurements = len(measurements)
+        if len_measurements == 0:
+            raise Exception("Empty sample.")
+
+        energy_consumptions = [
+            float(measurement.energy_consumption)
+            for measurement in measurements
+        ]
+        return sum(energy_consumptions) / len_measurements
 
     @classmethod
     def describe(cls, measurements):
@@ -158,7 +175,7 @@ class Measurement(object):
         Returns:
             Tuple of Energy consumption mean, std, Duration mean, std.
         """
-        measurements = cls.get_all_entries_of_app_use_case(app, use_case)
+        measurements = cls.get_all_entries_of_app(app, use_case)
         return cls.describe(measurements)
 
     @classmethod
@@ -225,3 +242,21 @@ class Measurement(object):
                       " \"{name_a}\" and \"{name_b}\" are different.\n"
                       "".format(name_a=name_a, name_b=name_b))
         return cls.hypothesis_test(sample_a, sample_b)
+
+    @classmethod
+    def get_energy_ranking(cls):
+        """Ranking of the energy consumption of all apps.
+
+        Get apps aggregated and sorted by mean energy consumption.
+        """
+        groups = []
+        uniquekeys = []
+        with open(cls.csv_storage, 'rb') as csvfile:
+            csv_reader = csv.reader(csvfile)
+
+            data = sorted(csv_reader, key=lambda row: row[cls.COLUMN_APP_PKG])
+            for k, group in groupby(data, lambda row: row[cls.COLUMN_APP_PKG]):
+                groups.append(list(group)) # Store group iterator as a list
+                uniquekeys.append(k)
+            print groups
+            print uniquekeys
