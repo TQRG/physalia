@@ -244,7 +244,7 @@ class Measurement(object):
         return cls.hypothesis_test(sample_a, sample_b)
 
     @classmethod
-    def get_energy_ranking(cls, use_case=None):
+    def get_energy_ranking(cls):
         """Ranking of the energy consumption of all apps.
 
         Get apps aggregated and sorted by mean energy consumption.
@@ -255,8 +255,8 @@ class Measurement(object):
             csv_reader = csv.reader(csvfile)
 
             data = sorted(csv_reader, key=lambda row: row[cls.COLUMN_APP_PKG])
-            for k, g in groupby(data, lambda row: row[cls.COLUMN_APP_PKG]):
-                groups.append(list(g))      # Store group iterator as a list
+            for k, group in groupby(data, lambda row: row[cls.COLUMN_APP_PKG]):
+                groups.append(list(group)) # Store group iterator as a list
                 uniquekeys.append(k)
             print groups
             print uniquekeys

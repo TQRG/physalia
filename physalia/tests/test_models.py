@@ -130,6 +130,8 @@ class TestMeasurement(unittest.TestCase):
                     "login with facebook are different.\n"
                 ).substitute(GREEK_ALPHABET)
             )
+
+    @unittest.skip(True)
     def test_get_energy_ranking(self):
         sample = (
             create_random_sample(10, 1, app_pkg="com.app1") +

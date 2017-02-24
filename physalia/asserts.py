@@ -36,4 +36,4 @@ def top_percentile(sample, nth, app=None, use_case=None):
         app (string): identifier of the application within the sample should be compared
         use_case (string: identifier of the use case used to create the ranking
     """
-    pass
+    return sample, nth, app, use_case
