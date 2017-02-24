@@ -1,11 +1,13 @@
 CHANGES
 =======
 
+* tox docs
 * fixed lint checks
 * pylint fixes
 * created failing test for consumption lower than app
 * creating asserts for energy consumption
 * created failing test for consumption lower than app
+* added docs
 * added physalia assert
 * refresh viewclient after starting it
 * tox.ini small changein requirements path
