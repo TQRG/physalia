@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* fixed lint checks
+* pylint fixes
 * created failing test for consumption lower than app
 * creating asserts for energy consumption
 * created failing test for consumption lower than app
