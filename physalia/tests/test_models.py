@@ -131,7 +131,6 @@ class TestMeasurement(unittest.TestCase):
                 ).substitute(GREEK_ALPHABET)
             )
 
-    @unittest.skip(True)
     def test_get_energy_ranking(self):
         sample = (
             create_random_sample(10, 1, app_pkg="com.app1") +
@@ -144,9 +143,8 @@ class TestMeasurement(unittest.TestCase):
         for measurement in sample:
             measurement.persist()
         ranking = Measurement.get_energy_ranking()
-        print ranking
         self.assertEqual(
-            [item.app_pkg for item in ranking],
+            ranking.keys(),
             [
                 "com.app1",
                 "com.app2",
@@ -155,4 +153,9 @@ class TestMeasurement(unittest.TestCase):
                 "com.app5",
                 "com.app6",
             ]
+        )
+        compare_sample = create_random_sample(12.5, 0.5, app_pkg="com.app7")
+        self.assertEqual(
+            Measurement.get_position_in_ranking(compare_sample),
+            4
         )

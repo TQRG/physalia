@@ -4,6 +4,8 @@ import csv
 import os
 import sys
 from itertools import groupby
+from collections import OrderedDict
+import bisect
 import numpy
 from scipy.stats import ttest_ind
 
@@ -248,15 +250,32 @@ class Measurement(object):
         """Ranking of the energy consumption of all apps.
 
         Get apps aggregated and sorted by mean energy consumption.
+
+        Returns:
+            OrderedDict with key=app_pkg and value=energy_consumption
         """
-        groups = []
-        uniquekeys = []
         with open(cls.csv_storage, 'rb') as csvfile:
             csv_reader = csv.reader(csvfile)
 
-            data = sorted(csv_reader, key=lambda row: row[cls.COLUMN_APP_PKG])
-            for k, group in groupby(data, lambda row: row[cls.COLUMN_APP_PKG]):
-                groups.append(list(group)) # Store group iterator as a list
-                uniquekeys.append(k)
-            print groups
-            print uniquekeys
+            data = [Measurement(*row) for row in csv_reader]
+            data = sorted(data, key=lambda msrmnt: msrmnt.app_pkg)
+            grouped_data = {
+                k: Measurement.mean_energy_consumption(list(group))
+                for (k, group) in groupby(
+                    data,
+                    key=lambda msrmnt: msrmnt.app_pkg
+                )
+            }
+            sorted_data = OrderedDict(sorted(
+                grouped_data.items(),
+                key=lambda (key, energy_consumption): energy_consumption
+            ))
+            return sorted_data
+
+    @classmethod
+    def get_position_in_ranking(cls, measurements):
+        """Get the position in ranking of a given sample of measurements."""
+        energy_ranking = cls.get_energy_ranking()
+        consumptions = energy_ranking.values()
+        energy_consumption = cls.mean_energy_consumption(measurements)
+        return bisect.bisect_left(consumptions, energy_consumption)+1
