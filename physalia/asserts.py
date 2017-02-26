@@ -27,7 +27,7 @@ def consumption_lower_than_app(sample, app, use_case=None):
     )
     consumption_below(sample, baseline_consumption)
 
-def top_percentile(sample, nth, app=None, use_case=None):
+def top_percentile(sample, nth):
     """Test that a given sample is in the top nth percentile.
 
     Args:
@@ -36,4 +36,5 @@ def top_percentile(sample, nth, app=None, use_case=None):
         app (string): identifier of the application within the sample should be compared
         use_case (string: identifier of the use case used to create the ranking
     """
-    return sample, nth, app, use_case
+    position, total = Measurement.get_position_in_ranking(sample)
+    assert float(position)/total*100 <= nth

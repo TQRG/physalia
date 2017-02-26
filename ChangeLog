@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* ranking position
 * tox ignore docs conf.py
 * tox docs
 * fixed lint checks

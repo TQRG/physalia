@@ -278,4 +278,7 @@ class Measurement(object):
         energy_ranking = cls.get_energy_ranking()
         consumptions = energy_ranking.values()
         energy_consumption = cls.mean_energy_consumption(measurements)
-        return bisect.bisect_left(consumptions, energy_consumption)+1
+        return (
+            bisect.bisect_left(consumptions, energy_consumption)+1,
+            len(consumptions)
+        )
