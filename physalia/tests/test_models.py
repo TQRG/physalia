@@ -157,5 +157,5 @@ class TestMeasurement(unittest.TestCase):
         compare_sample = create_random_sample(12.5, 0.5, app_pkg="com.app7")
         self.assertEqual(
             Measurement.get_position_in_ranking(compare_sample),
-            4
+            (4,6)
         )
