@@ -8,7 +8,7 @@ from physalia.models import Measurement
 # pylint: disable=missing-docstring
 
 class TestAssert(unittest.TestCase):
-    TEST_CSV_STORAGE = "./test_models_db.csv"
+    TEST_CSV_STORAGE = "./test_asserts_db.csv"
 
     def setUp(self):
         Measurement.csv_storage = self.TEST_CSV_STORAGE
