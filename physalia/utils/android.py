@@ -3,7 +3,7 @@
 import subprocess
 
 def set_charging_enabled(enabled, serialno=None):
-    """Enable or disable charging the device"""
+    """Enable or disable charging the device."""
     if serialno:
         command = (
             "adb shell -s {serialno} dumpsys battery set ac {enabled};"
