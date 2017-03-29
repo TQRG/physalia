@@ -4,7 +4,7 @@
 import unittest
 from mock import patch, MagicMock
 from physalia.models import Measurement
-from physalia.utils import GREEK_ALPHABET
+from physalia.utils.symbols import GREEK_ALPHABET
 from physalia.fixtures.models import create_measurement
 from physalia.fixtures.models import create_random_samples
 from physalia.fixtures.models import create_random_sample

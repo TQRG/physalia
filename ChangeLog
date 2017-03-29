@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+* minor fix in utils.android
+* added android utils
+* fixed test for position in ranking tuple
+* fixed test for position in ranking tuple
+* assert for nth percentile
+* assert for nth percentile
 * ranking position
 * tox ignore docs conf.py
 * tox docs

@@ -3,12 +3,13 @@
 import csv
 import os
 import sys
+from string import Template
 from itertools import groupby
 from collections import OrderedDict
 import bisect
-import numpy
 from scipy.stats import ttest_ind
-
+import numpy
+from physalia.utils.symbols import GREEK_ALPHABET
 
 class Measurement(object):
     """Energy measurement information.
@@ -213,8 +214,6 @@ class Measurement(object):
             sample_b (String): population name of sample b
             out (file): data stream for output
         """
-        from string import Template
-        from physalia.utils import GREEK_ALPHABET
         alpha = 0.05
         _, pvalue = cls.hypothesis_test(sample_a, sample_b)
         rejected_null_h = alpha <= pvalue
