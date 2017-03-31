@@ -4,6 +4,12 @@
 
 Energy tests framework for Android
 
+## Install
+
+```
+$ pip install physalia
+```
+
 ## Example
 
 ````

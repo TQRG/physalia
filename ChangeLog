@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* refactored greek alphabet
 * minor fix in utils.android
 * added android utils
 * fixed test for position in ranking tuple

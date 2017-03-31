@@ -1,8 +1,8 @@
 click
 numpy
-scipy
--e git+https://github.com/dtmilano/AndroidViewClient.git#egg=AndroidViewClient
+SciPy>=0.14.0
 
 #monsoon
 python-gflags
 pyserial
+mobly
