@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* added badges pypi
+* added badges pypi
+* published  library on pypi
 * refactored greek alphabet
 * minor fix in utils.android
 * added android utils

@@ -8,6 +8,7 @@ import click
 from com.dtmilano.android.viewclient import ViewClient
 from physalia.power_meters import EmulatedPowerMeter
 from physalia.models import Measurement
+import physalia.utils.android as android_utils
 
 
 class AndroidUseCase(object):
@@ -29,12 +30,13 @@ class AndroidUseCase(object):
     power_meter = EmulatedPowerMeter()
 
     def __init__(self, name, app_apk, app_pkg, app_version,
-                 run, prepare=None, cleanup=None):  # noqa: D102
+                 run=None, prepare=None, cleanup=None):  # noqa: D102
         self.name = name
         self.app_apk = app_apk
         self.app_pkg = app_pkg
         self.app_version = app_version
-        self._run = types.MethodType(run, self)
+        if run:
+            self._run = types.MethodType(run, self)
         if prepare:
             self._prepare = types.MethodType(prepare, self)
         if cleanup:
@@ -49,11 +51,11 @@ class AndroidUseCase(object):
         pass
 
     def prepare(self):
-        """Method that prepares environment for running."""
+        """Prepare environment for running."""
         self._prepare()
 
     def cleanup(self):
-        """Method that cleans environment after running."""
+        """Clean environment after running."""
         self._cleanup()
 
     def run(self):
@@ -111,11 +113,15 @@ class AndroidUseCase(object):
         click.secho("Uninstalling {}".format(self.app_pkg), fg='blue')
         subprocess.check_output(["adb", "uninstall", self.app_pkg])
 
+    def install_app(self):
+        """Install App."""
+        click.secho("Installing {}".format(self.app_apk), fg='blue')
+        android_utils.install_apk(self.app_apk)
+
     def prepare_apk(self):
         """Reinstall app in the Android device."""
         self.uninstall_app()
-        click.secho("Installing {}".format(self.app_apk), fg='blue')
-        subprocess.check_output(["adb", "install", self.app_apk])
+        self.install_app()
 
     def open_app(self):
         """Open app in the device."""

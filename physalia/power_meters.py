@@ -2,6 +2,7 @@
 
 import abc
 import time
+from physalia.third_party.monsoon import Monsoon
 
 
 class PowerMeter(object):
@@ -43,3 +44,20 @@ class EmulatedPowerMeter(PowerMeter):
         duration = time.time() - self.start_time
         energy_consumption = duration
         return energy_consumption, duration
+
+class MonsoonPowerMeter(PowerMeter):
+    """PowerMeter implementation for Monsoon."""
+
+    def __init__(self, serial=12886):  # noqa: D102
+        self.serial = serial
+        self.monsoon = None
+
+    def start(self):
+        """Start measuring energy consumption."""
+        self.monsoon = Monsoon(serial=self.serial)
+        self.monsoon.take_samples(sample_hz=200, sample_num=200, sample_offset=0, live=False)
+
+    def stop(self):
+        """Stop measuring."""
+        # collect data
+        pass

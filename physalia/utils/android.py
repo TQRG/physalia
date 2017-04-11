@@ -19,3 +19,7 @@ def set_charging_enabled(enabled, serialno=None):
         command,
         shell=True
     )
+
+def install_apk(apk):
+    """Install apk."""
+    subprocess.check_output(["adb", "install", apk])
