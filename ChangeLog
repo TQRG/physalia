@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* monsoon multithread
 * added asic test for android use case
 * cleaning the house with pylint
 * fixed new pydocstyle

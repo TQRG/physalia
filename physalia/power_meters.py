@@ -55,14 +55,14 @@ class MonsoonPowerMeter(PowerMeter):
         self.serial = serial
         self.monsoon = None
         self.thread = None
-        self.data = None
+        self.monsoon_data = None
 
     def start(self):
         """Start measuring energy consumption."""
         def start_method():
             """Start measuring in different thread."""
             self.monsoon = Monsoon(serial=self.serial)
-            self.data = self.monsoon.take_samples(
+            self.monsoon_data = self.monsoon.take_samples(
                 sample_hz=200, sample_num=200,
                 sample_offset=0, live=False
             )
@@ -73,5 +73,6 @@ class MonsoonPowerMeter(PowerMeter):
     def stop(self):
         """Stop measuring."""
         self.thread.join()
-        print self.data
-        return -1, -1
+        energy_consumption = sum(self.monsoon_data.data_points)/self.monsoon_data.hz
+        duration = len(self.monsoon_data.data_points)/self.monsoon_data.hz
+        return energy_consumption, duration
