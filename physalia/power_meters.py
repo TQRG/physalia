@@ -21,6 +21,7 @@ class PowerMeter(object):
 
         Returns:
             Energy consumption in Joules
+
         """
         return
 
@@ -40,6 +41,7 @@ class EmulatedPowerMeter(PowerMeter):
 
         Returns:
             Energy consumption in Joules
+
         """
         duration = time.time() - self.start_time
         energy_consumption = duration

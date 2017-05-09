@@ -22,6 +22,7 @@ class Measurement(object):
         device_model            Device where the measurements were performed.
         duration                Time it takes to execute the use case.
         energy_consumption      Mean of the measurements.
+
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -91,6 +92,7 @@ class Measurement(object):
 
         Returns:
             List of unique apps.
+
         """
         return cls._get_unique_from_column(cls.COLUMN_APP_PKG)
 
@@ -100,6 +102,7 @@ class Measurement(object):
 
         Returns:
             List of unique use cases.
+
         """
         return cls._get_unique_from_column(cls.COLUMN_USE_CASE)
 
@@ -139,6 +142,7 @@ class Measurement(object):
 
         Returns:
             Tuple of Energy consumption mean, std, Duration mean, std.
+
         """
         len_measurements = len(measurements)
         if len_measurements == 0:
@@ -177,6 +181,7 @@ class Measurement(object):
 
         Returns:
             Tuple of Energy consumption mean, std, Duration mean, std.
+
         """
         measurements = cls.get_all_entries_of_app(app, use_case)
         return cls.describe(measurements)
@@ -195,6 +200,7 @@ class Measurement(object):
         Returns:
             t (float): The calculated t-statistic
             prob (float): The two-tailed p-value
+
         """
         return ttest_ind(
             [measurement.energy_consumption for measurement in sample_a],
@@ -213,6 +219,7 @@ class Measurement(object):
             sample_a (String): population name of sample a
             sample_b (String): population name of sample b
             out (file): data stream for output
+
         """
         alpha = 0.05
         _, pvalue = cls.hypothesis_test(sample_a, sample_b)
@@ -252,6 +259,7 @@ class Measurement(object):
 
         Returns:
             OrderedDict with key=app_pkg and value=energy_consumption
+
         """
         with open(cls.csv_storage, 'rb') as csvfile:
             csv_reader = csv.reader(csvfile)

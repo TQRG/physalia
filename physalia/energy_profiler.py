@@ -19,6 +19,7 @@ class AndroidUseCase(object):
         app_version     version of the app
         prepare         method to run before interaction
         interact        method with Android interaction
+
     """
 
     # pylint: disable=too-many-instance-attributes
