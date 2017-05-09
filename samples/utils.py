@@ -7,6 +7,7 @@ from physalia.energy_profiler import AndroidUseCase
 class AndroidViewClientUseCase(AndroidUseCase):
     """`AndroidUseCase` to use with `AndroidViewClient`."""
 
+    # pylint: disable=not-callable
     # pylint: disable=too-many-arguments
     # Eight is reasonable in this case.
 

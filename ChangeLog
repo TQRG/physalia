@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* added asic test for android use case
+* cleaning the house with pylint
 * fixed new pydocstyle
 * removed android view client support'
 * removed android view client support'

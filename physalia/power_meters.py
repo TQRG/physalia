@@ -2,6 +2,7 @@
 
 import abc
 import time
+from threading import Thread
 from physalia.third_party.monsoon import Monsoon
 
 
@@ -53,13 +54,24 @@ class MonsoonPowerMeter(PowerMeter):
     def __init__(self, serial=12886):  # noqa: D102
         self.serial = serial
         self.monsoon = None
+        self.thread = None
+        self.data = None
 
     def start(self):
         """Start measuring energy consumption."""
-        self.monsoon = Monsoon(serial=self.serial)
-        self.monsoon.take_samples(sample_hz=200, sample_num=200, sample_offset=0, live=False)
+        def start_method():
+            """Start measuring in different thread."""
+            self.monsoon = Monsoon(serial=self.serial)
+            self.data = self.monsoon.take_samples(
+                sample_hz=200, sample_num=200,
+                sample_offset=0, live=False
+            )
+
+        self.thread = Thread(target=start_method)
+        self.thread.start()
 
     def stop(self):
         """Stop measuring."""
-        # collect data
-        pass
+        self.thread.join()
+        print self.data
+        return -1, -1

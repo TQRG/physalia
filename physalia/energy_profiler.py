@@ -22,6 +22,7 @@ class AndroidUseCase(object):
 
     """
 
+    # pylint: disable=not-callable
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
     # Eight is reasonable in this case.
