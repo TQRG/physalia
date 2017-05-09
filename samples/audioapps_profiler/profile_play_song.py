@@ -5,7 +5,7 @@ in terms of energy consumption in common use cases.
 """
 
 from time import sleep
-from physalia.energy_profiler import AndroidViewClientUseCase
+from samples.utils import AndroidViewClientUseCase
 
 # pylint: disable=missing-docstring
 # pylint: disable=invalid-name
