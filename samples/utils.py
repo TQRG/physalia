@@ -20,16 +20,6 @@ class AndroidViewClientUseCase(AndroidUseCase):
         self.serialno = None
         self.view_client = None
 
-    def get_device_model(self, serialno=None):
-        """Find out which is the current connected device model.
-
-        Use serialno if a device is already connected
-        using `AndroidViewClient`.
-        """
-        if serialno is None:
-            serialno = self.serialno
-        super(AndroidViewClientUseCase, self).get_device_model(serialno)
-
     def start_view_client(self, force=False):
         """Setup `AndroidViewClient`.
 

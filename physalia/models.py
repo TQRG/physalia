@@ -56,20 +56,19 @@ class Measurement(object):
         """Store measurement in the database."""
         if self.persisted:
             return False
-        else:
-            with open(self.csv_storage, 'a') as csvfile:
-                csv_writer = csv.writer(csvfile)
-                csv_writer.writerow([
-                    self.timestamp,
-                    self.use_case,
-                    self.app_pkg,
-                    self.app_version,
-                    self.device_model,
-                    self.duration,
-                    self.energy_consumption,
-                ])
-            self.persisted = True
-            return True
+        with open(self.csv_storage, 'a') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow([
+                self.timestamp,
+                self.use_case,
+                self.app_pkg,
+                self.app_version,
+                self.device_model,
+                self.duration,
+                self.energy_consumption,
+            ])
+        self.persisted = True
+        return True
 
     @classmethod
     def clear_database(cls):

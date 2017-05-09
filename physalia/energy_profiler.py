@@ -49,6 +49,10 @@ class AndroidUseCase(object):
         # pylint: disable=method-hidden
         pass
 
+    def _run(self):
+        # pylint: disable=method-hidden
+        pass
+
     def prepare(self):
         """Prepare environment for running."""
         self._prepare()
@@ -69,7 +73,7 @@ class AndroidUseCase(object):
             self.name,
             self.app_pkg,
             self.app_version,
-            self.get_device_model(),
+            android_utils.get_device_model(),
             duration,
             energy_consumption,
         )
@@ -91,21 +95,6 @@ class AndroidUseCase(object):
         for measurement in results:
             measurement.persist()
         return results
-
-    def get_device_model(self, serialno=None):
-        """Find out which is the currently connected device model."""
-        # pylint: disable=no-self-use
-
-        if serialno:
-            command = ("adb shell -s {} "
-                       "getprop ro.product.model").format(serialno)
-        else:
-            command = "adb shell getprop ro.product.model"
-        model = subprocess.check_output(
-            command,
-            shell=True
-        ).strip()
-        return model
 
     def uninstall_app(self):
         """Uninstall app of the Android device."""

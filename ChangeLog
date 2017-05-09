@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* fixed new pydocstyle
 * removed android view client support'
 * removed android view client support'
 * changelog
