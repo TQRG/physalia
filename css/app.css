@@ -1,0 +1,18 @@
+#banner{
+    background-color: rgb(64,0,128);
+    color: white;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+}
+.github-corner{
+    fill:#fff;
+    color: rgb(64,0,128);
+    opacity: 0.8;
+}
+a.github-corner:hover{
+    color: rgb(30,0,70);
+}
+.jumbotron h1, h3{
+    opacity:0.8;
+}
