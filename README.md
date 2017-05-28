@@ -8,6 +8,7 @@
 # Physalia
 
 Energy measurement framework for Mobile Apps.
+
 More info and documentation in the [website](https://tqrg.github.io/physalia/).
 
 ## Install
