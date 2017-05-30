@@ -1,6 +1,7 @@
 click
 numpy
 scipy
+whichcraft
 
 #monsoon
 python-gflags

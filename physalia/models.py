@@ -56,7 +56,13 @@ class Measurement(object):
         """Store measurement in the database."""
         if self.persisted:
             return False
-        with open(self.csv_storage, 'a') as csvfile:
+        self.save_to_csv(self.csv_storage)
+        self.persisted = True
+        return True
+
+    def save_to_csv(self, filename):
+        """Store measurements in a CSV file."""
+        with open(filename, 'a') as csvfile:
             csv_writer = csv.writer(csvfile)
             csv_writer.writerow([
                 self.timestamp,
@@ -67,8 +73,6 @@ class Measurement(object):
                 self.duration,
                 self.energy_consumption,
             ])
-        self.persisted = True
-        return True
 
     @classmethod
     def clear_database(cls):

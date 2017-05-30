@@ -2,6 +2,5 @@ flake8
 pydocstyle
 pytest-pylint
 pytest-cov
-whichcraft
 mock
 -e git+https://github.com/dtmilano/AndroidViewClient.git#egg=AndroidViewClient
