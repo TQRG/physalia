@@ -52,6 +52,16 @@ def is_screen_on():
         pass
     return False
 
+def is_locked():
+    """Check whether device is locked."""
+    output = subprocess.check_output(
+        "adb shell service call trust 7",
+        shell=True
+    )
+    match = re.search("Parcel\(00000000 00000001", output)
+    return match is not None
+        
+
 def wakeup():
     """Wake up device."""
     if not is_screen_on():

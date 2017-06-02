@@ -87,9 +87,14 @@ class MonsoonPowerMeter(PowerMeter):
                     fg='green'
                 )
                 break
-        
         android.connect_adb_through_wifi()
         self.monsoon_usb_enabled(False)
+        if android.is_locked():
+            click.secho(
+                "Device seems to be locked. "
+                "Disabling Passlock is recommended!",
+                fg='yellow'
+            )
 
     def setup_monsoon(self, voltage, serial):
         """Set up monsoon.
