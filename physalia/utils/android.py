@@ -23,9 +23,7 @@ def set_charging_enabled(enabled, serialno=None):
     )
 
 def prevent_device_from_sleep(enabled):
-    """Prevent device from sleep while usb connected.
-    """
-
+    """Prevent device from sleep while usb connected."""
     comand = "adb shell svc power stayon {}".format(
         {True: 'usb', False: 'false'}[enabled]
     )
@@ -92,12 +90,12 @@ def connect_adb_through_wifi():
         "adb shell ip -f inet addr show wlan0",
         shell=True
     )
-    ip = re.search(r"inet \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", net_output).group()[5:]
+    ip_address = re.search(r"inet \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", net_output).group()[5:]
     subprocess.check_output(
         "adb tcpip 5555",
         shell=True
     )
     subprocess.check_output(
-        "adb connect {}".format(ip),
+        "adb connect {}".format(ip_address),
         shell=True
     )

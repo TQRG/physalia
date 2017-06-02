@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+* connecting android through wifi; setting up monsoon automatically;  switching on/off monsoon usb port
+* added whichcraft to the main requirements; added save csv method
+* Update README.md
+* Update README.md
+* collect monsoon data
 * monsoon multithread
 * added asic test for android use case
 * cleaning the house with pylint

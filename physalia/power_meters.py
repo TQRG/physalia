@@ -52,25 +52,25 @@ class EmulatedPowerMeter(PowerMeter):
 
 class MonsoonPowerMeter(PowerMeter):
     """PowerMeter implementation for Monsoon.
-        
-        Make sure the Android device has Passlock disabled.
-        Your server and device have to be connected to the same network.
+
+    Make sure the Android device has Passlock disabled.
+    Your server and device have to be connected to the same network.
     """
 
-    def __init__(self, voltage=3.8, hz=50000, serial=12886):  # noqa: D102
+    def __init__(self, voltage=3.8, sample_hz=50000, serial=12886):  # noqa: D102
         self.monsoon = None
         self.thread = None
         self.monsoon_data = None
         self.voltage = None
         self.serial = None
-        self.hz = hz
+        self.sample_hz = sample_hz
 
         self.setup_monsoon(voltage, serial)
         click.secho(
             "Monsoon is ready.",
             fg='green'
         )
-        for i in range(50):
+        for _ in range(50):
             click.secho(
                 "Waiting for an Android device.",
                 fg='green'
@@ -79,12 +79,12 @@ class MonsoonPowerMeter(PowerMeter):
                 break
             time.sleep(3)
         android.connect_adb_through_wifi()
-        self.monsoon.usb(self.monsoon, 'off')
+        self.monsoon_usb_enabled(False)
         android.wakeup()
 
     def setup_monsoon(self, voltage, serial):
-        """Setup monsoon.
-        
+        """Set up monsoon.
+
         Args:
             voltage: Voltage output of the power monitor.
             serial: serial number of the power monitor.
@@ -95,12 +95,21 @@ class MonsoonPowerMeter(PowerMeter):
             ),
             fg='green'
         )
-        
+
         self.serial = serial
         self.voltage = voltage
         self.monsoon = Monsoon(serial=self.serial)
         self.monsoon.set_voltage(self.voltage)
-        self.monsoon.usb(self.monsoon, 'on')
+        self.monsoon_usb_enabled(True)
+
+    def monsoon_usb_enabled(self, enabled):
+        """Enable/disable monsoon's usb port."""
+        # pylint: disable=too-many-function-args
+        # something is conflicting with timeout_decorator
+        self.monsoon.usb(
+            self.monsoon,
+            {True:'on', False:'off'}[enabled]
+        )
 
     def start(self):
         """Start measuring energy consumption."""
@@ -109,7 +118,7 @@ class MonsoonPowerMeter(PowerMeter):
             self.monsoon = Monsoon(serial=self.serial)
             self.monsoon.set_voltage(self.voltage)
             self.monsoon_data = self.monsoon.take_samples(
-                sample_hz=self.hz, sample_num=500000,
+                sample_hz=self.sample_hz, sample_num=500000,
                 sample_offset=0, live=False
             )
 
