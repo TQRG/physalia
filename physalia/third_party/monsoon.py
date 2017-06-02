@@ -840,8 +840,8 @@ class Monsoon(object):
 #
 # monsoon = Monsoon(serial=12886)
 # print monsoon.status
-# monsoon.set_voltage(2.1)
-#
+# monsoon.set_voltage(3.8)
+
 #
 # data = monsoon.take_samples(200, 200)
 # print "----"

@@ -1,6 +1,7 @@
 """Module with util functions to control Android devices."""
 
 import subprocess
+import re
 from whichcraft import which
 
 def set_charging_enabled(enabled, serialno=None):
@@ -18,6 +19,38 @@ def set_charging_enabled(enabled, serialno=None):
 
     subprocess.check_output(
         command,
+        shell=True
+    )
+
+def prevent_device_from_sleep(enabled):
+    """Prevent device from sleep while usb connected.
+    """
+
+    comand = "adb shell svc power stayon {}".format(
+        {True: 'usb', False: 'false'}[enabled]
+    )
+    subprocess.check_output(
+        comand,
+        shell=True
+    )
+
+def wakeup():
+    """Wake up device."""
+    subprocess.check_output(
+        "adb shell input keyevent 26",
+        shell=True
+    )
+
+def unlock(pincode):
+    """Unlock device with the given PIN."""
+    wakeup()
+    comand = (
+        "adb shell input keyevent 82"
+        " && adb shell input text {}"
+        " && adb shell input keyevent 66"
+    ).format(pincode)
+    subprocess.check_output(
+        comand,
         shell=True
     )
 
@@ -52,4 +85,19 @@ def get_device_model(serialno=None):
         ).strip()
     except subprocess.CalledProcessError:
         return "N/A"
-    
+
+def connect_adb_through_wifi():
+    """Configure `adb` through a wifi connection."""
+    net_output = subprocess.check_output(
+        "adb shell ip -f inet addr show wlan0",
+        shell=True
+    )
+    ip = re.search(r"inet \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", net_output).group()[5:]
+    subprocess.check_output(
+        "adb tcpip 5555",
+        shell=True
+    )
+    subprocess.check_output(
+        "adb connect {}".format(ip),
+        shell=True
+    )

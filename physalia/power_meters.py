@@ -3,7 +3,9 @@
 import abc
 import time
 from threading import Thread
+import click
 from physalia.third_party.monsoon import Monsoon
+from physalia.utils import android
 
 
 class PowerMeter(object):
@@ -49,21 +51,65 @@ class EmulatedPowerMeter(PowerMeter):
         return energy_consumption, duration
 
 class MonsoonPowerMeter(PowerMeter):
-    """PowerMeter implementation for Monsoon."""
+    """PowerMeter implementation for Monsoon.
+        
+        Make sure the Android device has Passlock disabled.
+        Your server and device have to be connected to the same network.
+    """
 
-    def __init__(self, serial=12886):  # noqa: D102
-        self.serial = serial
+    def __init__(self, voltage=3.8, hz=50000, serial=12886):  # noqa: D102
         self.monsoon = None
         self.thread = None
         self.monsoon_data = None
+        self.voltage = None
+        self.serial = None
+        self.hz = hz
+
+        self.setup_monsoon(voltage, serial)
+        click.secho(
+            "Monsoon is ready.",
+            fg='green'
+        )
+        for i in range(50):
+            click.secho(
+                "Waiting for an Android device.",
+                fg='green'
+            )
+            if android.is_android_device_available():
+                break
+            time.sleep(3)
+        android.connect_adb_through_wifi()
+        self.monsoon.usb(self.monsoon, 'off')
+        android.wakeup()
+
+    def setup_monsoon(self, voltage, serial):
+        """Setup monsoon.
+        
+        Args:
+            voltage: Voltage output of the power monitor.
+            serial: serial number of the power monitor.
+        """
+        click.secho(
+            "Setting up Monsoon {} with {}V...".format(
+                serial, voltage
+            ),
+            fg='green'
+        )
+        
+        self.serial = serial
+        self.voltage = voltage
+        self.monsoon = Monsoon(serial=self.serial)
+        self.monsoon.set_voltage(self.voltage)
+        self.monsoon.usb(self.monsoon, 'on')
 
     def start(self):
         """Start measuring energy consumption."""
         def start_method():
             """Start measuring in different thread."""
             self.monsoon = Monsoon(serial=self.serial)
+            self.monsoon.set_voltage(self.voltage)
             self.monsoon_data = self.monsoon.take_samples(
-                sample_hz=200, sample_num=200,
+                sample_hz=self.hz, sample_num=500000,
                 sample_offset=0, live=False
             )
 
@@ -73,6 +119,6 @@ class MonsoonPowerMeter(PowerMeter):
     def stop(self):
         """Stop measuring."""
         self.thread.join()
-        energy_consumption = sum(self.monsoon_data.data_points)/self.monsoon_data.hz
+        energy_consumption = sum(self.monsoon_data.data_points)/self.monsoon_data.hz/1000
         duration = len(self.monsoon_data.data_points)/self.monsoon_data.hz
         return energy_consumption, duration

@@ -7,3 +7,4 @@ whichcraft
 python-gflags
 pyserial
 mobly
+timeout-decorator
