@@ -5,6 +5,7 @@ import time
 from threading import Thread
 import click
 from physalia.third_party.monsoon import Monsoon
+from physalia.third_party import monsoon_hack
 from physalia.utils import android
 
 
@@ -132,9 +133,9 @@ class MonsoonPowerMeter(PowerMeter):
             """Start measuring in different thread."""
             self.monsoon = Monsoon(serial=self.serial)
             self.monsoon.set_voltage(self.voltage)
-            self.monsoon_data = self.monsoon.take_samples(
-                sample_hz=self.sample_hz, sample_num=500000,
-                sample_offset=0, live=False
+            self.monsoon_data = monsoon_hack.take_samples(
+                self.monsoon,
+                sample_hz=self.sample_hz
             )
 
         self.thread = Thread(target=start_method)
@@ -142,6 +143,7 @@ class MonsoonPowerMeter(PowerMeter):
 
     def stop(self):
         """Stop measuring."""
+        monsoon_hack.stop_taking_samples()
         self.thread.join()
         energy_consumption = sum(self.monsoon_data.data_points)/self.monsoon_data.hz/1000
         duration = len(self.monsoon_data.data_points)/self.monsoon_data.hz
