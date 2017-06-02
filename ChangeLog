@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* checking passlock
 * tolerant adb reconnect; check device screen; improved output
 * cleaning code
 * connecting android through wifi; setting up monsoon automatically;  switching on/off monsoon usb port

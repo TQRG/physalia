@@ -58,9 +58,8 @@ def is_locked():
         "adb shell service call trust 7",
         shell=True
     )
-    match = re.search("Parcel\(00000000 00000001", output)
+    match = re.search(r"Parcel\(00000000 00000001", output)
     return match is not None
-        
 
 def wakeup():
     """Wake up device."""
