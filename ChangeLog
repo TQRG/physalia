@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* cleaning code
 * connecting android through wifi; setting up monsoon automatically;  switching on/off monsoon usb port
 * added whichcraft to the main requirements; added save csv method
 * Update README.md

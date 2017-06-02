@@ -70,17 +70,26 @@ class MonsoonPowerMeter(PowerMeter):
             "Monsoon is ready.",
             fg='green'
         )
+        if not android.is_android_device_available():
+            click.secho(
+                "You can now turn the phone on.",
+                fg='blue'
+            )
         for _ in range(50):
             click.secho(
-                "Waiting for an Android device.",
-                fg='green'
+                "Waiting for an Android device...",
+                fg='blue'
             )
-            if android.is_android_device_available():
-                break
             time.sleep(3)
+            if android.is_android_device_available():
+                click.secho(
+                    "Found a {}!".format(android.get_device_model()),
+                    fg='green'
+                )
+                break
+        
         android.connect_adb_through_wifi()
         self.monsoon_usb_enabled(False)
-        android.wakeup()
 
     def setup_monsoon(self, voltage, serial):
         """Set up monsoon.
@@ -93,13 +102,14 @@ class MonsoonPowerMeter(PowerMeter):
             "Setting up Monsoon {} with {}V...".format(
                 serial, voltage
             ),
-            fg='green'
+            fg='blue'
         )
 
         self.serial = serial
         self.voltage = voltage
         self.monsoon = Monsoon(serial=self.serial)
         self.monsoon.set_voltage(self.voltage)
+        android.reconnect_adb_through_usb()
         self.monsoon_usb_enabled(True)
 
     def monsoon_usb_enabled(self, enabled):

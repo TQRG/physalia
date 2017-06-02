@@ -32,12 +32,33 @@ def prevent_device_from_sleep(enabled):
         shell=True
     )
 
+def is_screen_on():
+    """Check whether the screen is on."""
+    try:
+        subprocess.check_output(
+            "adb shell dumpsys input_method | grep mInteractive=true",
+            shell=True
+        )
+        return True
+    except subprocess.CalledProcessError:
+        pass
+    try:
+        subprocess.check_output(
+            'adb shell dumpsys power | grep "Display Power: state=ON"',
+            shell=True
+        )
+        return True
+    except subprocess.CalledProcessError:
+        pass
+    return False
+
 def wakeup():
     """Wake up device."""
-    subprocess.check_output(
-        "adb shell input keyevent 26",
-        shell=True
-    )
+    if not is_screen_on():
+        subprocess.check_output(
+            "adb shell input keyevent 26",
+            shell=True
+        )
 
 def unlock(pincode):
     """Unlock device with the given PIN."""
@@ -99,3 +120,14 @@ def connect_adb_through_wifi():
         "adb connect {}".format(ip_address),
         shell=True
     )
+
+def reconnect_adb_through_usb():
+    """Connect adb back to USB while in wifi."""
+    try:
+        subprocess.check_output(
+            "adb reconnect",
+            shell=True
+        )
+    except subprocess.CalledProcessError:
+        pass
+    
