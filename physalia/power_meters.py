@@ -5,7 +5,7 @@ import time
 from threading import Thread
 import click
 from physalia.third_party.monsoon import Monsoon
-from physalia.third_party import monsoon_hack
+from physalia.third_party import monsoon_async
 from physalia.utils import android
 
 
@@ -115,7 +115,8 @@ class MonsoonPowerMeter(PowerMeter):
         self.voltage = voltage
         self.monsoon = Monsoon(serial=self.serial)
         self.monsoon.set_voltage(self.voltage)
-        android.reconnect_adb_through_usb()
+        if android.is_android_device_available():
+            android.reconnect_adb_through_usb()
         self.monsoon_usb_enabled(True)
 
     def monsoon_usb_enabled(self, enabled):
@@ -129,22 +130,17 @@ class MonsoonPowerMeter(PowerMeter):
 
     def start(self):
         """Start measuring energy consumption."""
-        def start_method():
-            """Start measuring in different thread."""
-            self.monsoon = Monsoon(serial=self.serial)
-            self.monsoon.set_voltage(self.voltage)
-            self.monsoon_data = monsoon_hack.take_samples(
-                self.monsoon,
-                sample_hz=self.sample_hz
-            )
-
-        self.thread = Thread(target=start_method)
-        self.thread.start()
+        self.monsoon_reader = monsoon_async.MonsoonReader(
+            self.monsoon,
+            self.sample_hz
+        )
+        self.monsoon_reader.start()    
 
     def stop(self):
         """Stop measuring."""
-        monsoon_hack.stop_taking_samples()
-        self.thread.join()
-        energy_consumption = sum(self.monsoon_data.data_points)/self.monsoon_data.hz/1000
-        duration = len(self.monsoon_data.data_points)/self.monsoon_data.hz
+        self.monsoon_reader.stop()
+        data_points = self.monsoon_reader.data.data_points
+        sample_hz = self.monsoon_reader.data.hz
+        energy_consumption = sum(data_points)/sample_hz/1000
+        duration = len(data_points)/sample_hz
         return energy_consumption, duration
