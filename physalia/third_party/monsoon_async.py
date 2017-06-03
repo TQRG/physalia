@@ -3,21 +3,16 @@
 This is based on the original code by Google, which is
 licensed under the Apache License, Version 2.0 .
 """
-import fcntl
-import logging
-import os
-import select
-import struct
+
 import sys
 import time
-import timeout_decorator
-import collections
 from threading import Event, Thread
-from monsoon import MonsoonData
+from physalia.third_party.monsoon import MonsoonData
 
 PLEASE_STOP = Event()
 
 class MonsoonReader(Thread):
+    """`Thread` subclass to asynchronously control monsoon measurements."""
 
     def __init__(self, monsoon, sample_hz, sample_offset=0, live=False):
         super(MonsoonReader, self).__init__()
@@ -29,17 +24,22 @@ class MonsoonReader(Thread):
         self.data = None
 
     def run(self):
-        self.take_samples(
+        """Start measuring."""
+        self._take_samples(
             self.monsoon,
             self.sample_hz,
             self.sample_offset,
             self.live
         )
     def stop(self):
+        """Stop measuring.
+
+        Measurements are stored in `self.data`."""
         self._please_stop.set()
         self.join()
-    
-    def take_samples(self, monsoon, sample_hz, sample_offset=0, live=False):
+
+    def _take_samples(self, monsoon, sample_hz, sample_offset=0, live=False):
+        # pylint: disable=broad-except
         """Take samples of the current value supplied by monsoon.
 
         This is the actual measurement for power consumption. This function
@@ -58,8 +58,9 @@ class MonsoonReader(Thread):
         """
         sys.stdout.flush()
         voltage = monsoon.mon.GetVoltage()
-        monsoon.log.info("Taking samples at %dhz, voltage %.2fv.",
-                      sample_hz, voltage)
+        monsoon.log.info(
+            "Taking samples at %dhz, voltage %.2fv.",
+            sample_hz, voltage)
         # Make sure state is normal
         monsoon.mon.StopDataCollection()
         status = monsoon.mon.GetStatus()
@@ -76,7 +77,6 @@ class MonsoonReader(Thread):
         emitted = offset = 0
         collected = []
         # past n samples for rolling average
-        history_deque = collections.deque()
         current_values = []
         timestamps = []
 
@@ -112,10 +112,16 @@ class MonsoonReader(Thread):
                     if now - last_flush >= 0.99:  # flush every second
                         sys.stdout.flush()
                         last_flush = now
-        except Exception as e:
+        except Exception:
             pass
         monsoon.mon.StopDataCollection()
         try:
-            self.data = MonsoonData(current_values, timestamps, sample_hz, voltage, offset=sample_offset)
-        except:
+            self.data = MonsoonData(
+                current_values,
+                timestamps,
+                sample_hz,
+                voltage,
+                offset=sample_offset
+            )
+        except Exception:
             self.data = None

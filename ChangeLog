@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* clean async monsoon
+* first version of async monsoon collection
+* code linted
 * checking passlock
 * tolerant adb reconnect; check device screen; improved output
 * cleaning code

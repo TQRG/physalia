@@ -2,7 +2,6 @@
 
 import abc
 import time
-from threading import Thread
 import click
 from physalia.third_party.monsoon import Monsoon
 from physalia.third_party import monsoon_async
@@ -60,7 +59,7 @@ class MonsoonPowerMeter(PowerMeter):
 
     def __init__(self, voltage=3.8, sample_hz=50000, serial=12886):  # noqa: D102
         self.monsoon = None
-        self.thread = None
+        self.monsoon_reader = None
         self.monsoon_data = None
         self.voltage = None
         self.serial = None
@@ -134,7 +133,7 @@ class MonsoonPowerMeter(PowerMeter):
             self.monsoon,
             self.sample_hz
         )
-        self.monsoon_reader.start()    
+        self.monsoon_reader.start()
 
     def stop(self):
         """Stop measuring."""
