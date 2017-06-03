@@ -40,6 +40,9 @@ class MonsoonReader(Thread):
 
     def _take_samples(self, monsoon, sample_hz, sample_offset=0, live=False):
         # pylint: disable=broad-except
+        # pylint: disable=too-many-locals
+        # We want to keep this code similar to the original from Google.
+        # Although some smells were fixed, these would be too much.
         """Take samples of the current value supplied by monsoon.
 
         This is the actual measurement for power consumption. This function
