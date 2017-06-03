@@ -27,7 +27,7 @@ class AndroidUseCase(object):
     # pylint: disable=too-many-arguments
     # Eight is reasonable in this case.
 
-    power_meter = EmulatedPowerMeter()
+    default_power_meter = EmulatedPowerMeter()
 
     def __init__(self, name, app_apk, app_pkg, app_version,
                  run=None, prepare=None, cleanup=None):  # noqa: D102
@@ -35,6 +35,7 @@ class AndroidUseCase(object):
         self.app_apk = app_apk
         self.app_pkg = app_pkg
         self.app_version = app_version
+        self.power_meter = None
         if run:
             self._run = types.MethodType(run, self)
         if prepare:
@@ -62,12 +63,12 @@ class AndroidUseCase(object):
         """Clean environment after running."""
         self._cleanup()
 
-    def run(self):
+    def run(self, power_meter=default_power_meter):
         """Measure the routine stored in `_run`."""
         self.prepare()
-        self.power_meter.start()
+        power_meter.start()
         self._run()
-        energy_consumption, duration = self.power_meter.stop()
+        energy_consumption, duration = power_meter.stop()
         self.cleanup()
         return Measurement(
             time.time(),
@@ -77,11 +78,19 @@ class AndroidUseCase(object):
             android_utils.get_device_model(),
             duration,
             energy_consumption,
+            str(power_meter)
         )
 
-    def profile(self, verbose=True, count=30):
-        """Run a batch of measurements."""
-        results = [self.run() for _ in range(count)]
+    def profile(self, power_meter=default_power_meter,
+                verbose=True, count=30):
+        """Run a batch of measurements.
+
+        Args:
+            power_meter Power meter to use in measurements.
+            verbose     Log activiy (default=True).
+            count       Run experiment several times (default=30).
+        """
+        results = [self.run(power_meter=power_meter) for _ in range(count)]
         if verbose:
             click.secho("Energy consumption results for {}: "
                         "{:.3f} Joules (s = {:.3f}).\n"
@@ -90,9 +99,10 @@ class AndroidUseCase(object):
                         fg='green')
         return results
 
-    def profile_and_persist(self, verbose=True, count=30):
+    def profile_and_persist(self, power_meter=default_power_meter,
+                            verbose=True, count=30):
         """Measure a batch of measurements and save it."""
-        results = self.profile(verbose, count)
+        results = self.profile(power_meter, verbose, count)
         for measurement in results:
             measurement.persist()
         return results

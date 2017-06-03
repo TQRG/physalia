@@ -50,6 +50,10 @@ class EmulatedPowerMeter(PowerMeter):
         energy_consumption = duration
         return energy_consumption, duration
 
+    def __str__(self):
+        """Return the name of this power meter."""
+        return "Emulated"
+
 class MonsoonPowerMeter(PowerMeter):
     """PowerMeter implementation for Monsoon.
 
@@ -143,3 +147,7 @@ class MonsoonPowerMeter(PowerMeter):
         energy_consumption = sum(data_points)/sample_hz/1000
         duration = len(data_points)/sample_hz
         return energy_consumption, duration
+
+    def __str__(self):
+        """Return the name of this power meter with sample frequency."""
+        return "Monsoon-{}Hz".format(self.sample_hz)

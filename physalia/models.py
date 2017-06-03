@@ -22,6 +22,7 @@ class Measurement(object):
         device_model            Device where the measurements were performed.
         duration                Time it takes to execute the use case.
         energy_consumption      Mean of the measurements.
+        power_meter             Name of the power meter used.
 
     """
 
@@ -41,7 +42,8 @@ class Measurement(object):
             app_version,
             device_model,
             duration,
-            energy_consumption
+            energy_consumption,
+            power_meter="NA"
     ):  # noqa: D102
         self.persisted = False
         self.timestamp = timestamp
@@ -51,6 +53,7 @@ class Measurement(object):
         self.device_model = device_model
         self.duration = duration
         self.energy_consumption = energy_consumption
+        self.power_meter = power_meter
 
     def persist(self):
         """Store measurement in the database."""
@@ -72,6 +75,7 @@ class Measurement(object):
                 self.device_model,
                 self.duration,
                 self.energy_consumption,
+                self.power_meter
             ])
 
     @classmethod
