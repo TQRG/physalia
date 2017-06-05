@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* fixed small error with energy_profiler tuples
 * added error_flag to executions return tuple
 * Choose power meter when running/profiling
 * lint files
