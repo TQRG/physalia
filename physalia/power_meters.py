@@ -147,7 +147,7 @@ class MonsoonPowerMeter(PowerMeter):
             sample_hz = self.monsoon_reader.data.hz
             energy_consumption = sum(data_points)/sample_hz/1000
             duration = len(data_points)/sample_hz
-            return energy_consumption, duration
+            return energy_consumption, duration, False
         return -1, -1, True
 
     def __str__(self):

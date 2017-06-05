@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* added error_flag to executions return tuple
 * Choose power meter when running/profiling
 * lint files
 * clean async monsoon
