@@ -137,6 +137,7 @@ class MonsoonPowerMeter(PowerMeter):
             self.monsoon,
             self.sample_hz
         )
+        self.monsoon_reader.prepare()
         self.monsoon_reader.start()
 
     def stop(self):

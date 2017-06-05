@@ -13,6 +13,7 @@ PLEASE_STOP = Event()
 
 class MonsoonReader(Thread):
     """`Thread` subclass to asynchronously control monsoon measurements."""
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, monsoon, sample_hz, sample_offset=0, live=False):
         super(MonsoonReader, self).__init__()
@@ -22,6 +23,23 @@ class MonsoonReader(Thread):
         self.sample_offset = sample_offset
         self.live = live
         self.data = None
+        self.error_flag = False
+        #monsoon cache data
+        self._monsoon_native_hz = None
+        self._monsoon_voltage = None
+        self._monsoon_status = None
+
+    def prepare(self):
+        """Prepare monsoon to start measuring."""
+        sys.stdout.flush()
+        self._monsoon_voltage = self.monsoon.mon.GetVoltage()
+        self.monsoon.log.info(
+            "Taking samples at %dhz, voltage %.2fv.",
+            self.sample_hz, self._monsoon_voltage)
+        # Make sure state is normal
+        self.monsoon.mon.StopDataCollection()
+        self._monsoon_status = self.monsoon.mon.GetStatus()
+        self._monsoon_native_hz = self._monsoon_status["sampleRate"] * 1000
 
     def run(self):
         """Start measuring."""
@@ -59,22 +77,12 @@ class MonsoonReader(Thread):
             A MonsoonData object representing the data obtained in this
             sampling. None if sampling is unsuccessful.
         """
-        sys.stdout.flush()
-        voltage = monsoon.mon.GetVoltage()
-        monsoon.log.info(
-            "Taking samples at %dhz, voltage %.2fv.",
-            sample_hz, voltage)
-        # Make sure state is normal
-        monsoon.mon.StopDataCollection()
-        status = monsoon.mon.GetStatus()
-        native_hz = status["sampleRate"] * 1000
-
         # Collect and average samples as specified
         monsoon.mon.StartDataCollection()
 
-        # In case sample_hz doesn't divide native_hz exactly, use this
+        # In case sample_hz doesn't divide self._monsoon_native_hz exactly, use this
         # invariant: 'offset' = (consumed samples) * sample_hz -
-        # (emitted samples) * native_hz
+        # (emitted samples) * self._monsoon_native_hz
         # This is the error accumulator in a variation of Bresenham's
         # algorithm.
         emitted = offset = 0
@@ -88,7 +96,7 @@ class MonsoonReader(Thread):
             while not self._please_stop.is_set():
                 # The number of raw samples to consume before emitting the next
                 # output
-                need = int((native_hz - offset + sample_hz - 1) / sample_hz)
+                need = int((self._monsoon_native_hz - offset + sample_hz - 1) / sample_hz)
                 if need > len(collected):  # still need more input samples
                     samples = monsoon.mon.CollectData()
                     if not samples:
@@ -98,8 +106,8 @@ class MonsoonReader(Thread):
                     # Have enough data, generate output samples.
                     # Adjust for consuming 'need' input samples.
                     offset += need * sample_hz
-                    # maybe multiple, if sample_hz > native_hz
-                    while offset >= native_hz:
+                    # maybe multiple, if sample_hz > self._monsoon_native_hz
+                    while offset >= self._monsoon_native_hz:
                         # TODO(angli): Optimize "collected" operations.
                         this_sample = sum(collected[:need]) / need
                         this_time = int(time.time())
@@ -108,7 +116,7 @@ class MonsoonReader(Thread):
                             monsoon.log.info("%s %s", this_time, this_sample)
                         current_values.append(this_sample)
                         sys.stdout.flush()
-                        offset -= native_hz
+                        offset -= self._monsoon_native_hz
                         emitted += 1  # adjust for emitting 1 output sample
                     collected = collected[need:]
                     now = time.time()
@@ -123,8 +131,9 @@ class MonsoonReader(Thread):
                 current_values,
                 timestamps,
                 sample_hz,
-                voltage,
+                self._monsoon_voltage,
                 offset=sample_offset
             )
         except Exception:
             self.data = None
+            self.error_flag = True

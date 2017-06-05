@@ -81,11 +81,16 @@ class Measurement(object):
     def __str__(self):
         """Get description of the measurement."""
         return (
-            "Measurement for {} with {} in a {}:\n"
-            "Energy consumption:\t{:.4f}\n"
-            "Duration:\t{}"
-        ).format(self.use_case, self.power_meter, self.device_model,
-                 self.energy_consumption, self.duration)
+            "Measurement for {}:\n"
+            "  {: <20}{:.4f}J\n"
+            "  {: <20}{}s\n"
+            "  {: <20}{}\n"
+            "  {: <20}{}"
+        ).format(self.use_case,
+                 "Energy consumption:", self.energy_consumption,
+                 "Duration:", self.duration,
+                 "Power meter:", self.power_meter,
+                 "Phone:", self.device_model)
 
     @classmethod
     def clear_database(cls):

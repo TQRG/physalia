@@ -77,6 +77,7 @@ class AndroidUseCase(object):
         self.cleanup()
         if error_flag:
             if retry_limit > 0:
+                click.secho("Measurement has failed: retrying...", fg='yellow')
                 return self.run(power_meter, retry_limit-1)
             return None
         return Measurement(
@@ -91,17 +92,25 @@ class AndroidUseCase(object):
         )
 
     def profile(self, power_meter=default_power_meter,
-                verbose=True, count=30):
+                verbose=True, count=30, retry_limit=1,
+                save_to_csv=None):
         """Run a batch of measurements.
 
         Args:
-            power_meter Power meter to use in measurements.
-            verbose     Log activiy (default=True).
-            count       Run experiment several times (default=30).
+            power_meter     Power meter to use in measurements.
+            verbose         Log activiy (default=True).
+            count           Run experiment several times (default=30).
+            retry_limit     Number of times to retry on error.
+            save_to_csv     File name to store mesasurement.
         Returns: Set of measurements
 
         """
-        results = [self.run(power_meter=power_meter) for _ in range(count)]
+        results = []
+        for _ in range(count):
+            result = self.run(power_meter=power_meter, retry_limit=retry_limit)
+            results.append(result)
+            if save_to_csv:
+                result.save_to_csv(save_to_csv)
         if verbose:
             click.secho("Energy consumption results for {}: "
                         "{:.3f} Joules (s = {:.3f}).\n"
