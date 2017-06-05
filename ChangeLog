@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* minor fix
 * pretty print of measurement
 * fixed small error with energy_profiler tuples
 * added error_flag to executions return tuple

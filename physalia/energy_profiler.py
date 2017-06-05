@@ -63,7 +63,7 @@ class AndroidUseCase(object):
         """Clean environment after running."""
         self._cleanup()
 
-    def run(self, power_meter=default_power_meter, retry_limit = 1):
+    def run(self, power_meter=default_power_meter, retry_limit=1):
         """Measure the routine stored in `_run`.
 
         Returns:
