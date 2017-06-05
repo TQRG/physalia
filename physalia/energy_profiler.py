@@ -63,7 +63,7 @@ class AndroidUseCase(object):
         """Clean environment after running."""
         self._cleanup()
 
-    def run(self, power_meter=default_power_meter):
+    def run(self, power_meter=default_power_meter, retry_limit = 1):
         """Measure the routine stored in `_run`.
 
         Returns:
@@ -76,6 +76,8 @@ class AndroidUseCase(object):
         energy_consumption, duration, error_flag = power_meter.stop()
         self.cleanup()
         if error_flag:
+            if retry_limit > 0:
+                return self.run(power_meter, retry_limit-1)
             return None
         return Measurement(
             time.time(),

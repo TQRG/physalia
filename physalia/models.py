@@ -82,7 +82,7 @@ class Measurement(object):
         """Get description of the measurement."""
         return (
             "Measurement for {} with {} in a {}:\n"
-            "Energy consumption:\t{.4f}\n"
+            "Energy consumption:\t{:.4f}\n"
             "Duration:\t{}"
         ).format(self.use_case, self.power_meter, self.device_model,
                  self.energy_consumption, self.duration)
