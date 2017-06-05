@@ -64,12 +64,19 @@ class AndroidUseCase(object):
         self._cleanup()
 
     def run(self, power_meter=default_power_meter):
-        """Measure the routine stored in `_run`."""
+        """Measure the routine stored in `_run`.
+
+        Returns:
+            Measurement: data collected from experiment
+
+        """
         self.prepare()
         power_meter.start()
         self._run()
-        energy_consumption, duration = power_meter.stop()
+        energy_consumption, duration, error_flag = power_meter.stop()
         self.cleanup()
+        if error_flag:
+            return None
         return Measurement(
             time.time(),
             self.name,
@@ -89,6 +96,8 @@ class AndroidUseCase(object):
             power_meter Power meter to use in measurements.
             verbose     Log activiy (default=True).
             count       Run experiment several times (default=30).
+        Returns: Set of measurements
+
         """
         results = [self.run(power_meter=power_meter) for _ in range(count)]
         if verbose:

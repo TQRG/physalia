@@ -23,7 +23,7 @@ class PowerMeter(object):
         """Stop measuring energy consumption.
 
         Returns:
-            Energy consumption in Joules
+            tuple: energy consumption in Joules; duration; error flag.
 
         """
         return
@@ -43,12 +43,12 @@ class EmulatedPowerMeter(PowerMeter):
         """Stop measuring energy consumption.
 
         Returns:
-            Energy consumption in Joules
+            tuple: energy consumption in Joules; duration; error flag.
 
         """
         duration = time.time() - self.start_time
         energy_consumption = duration
-        return energy_consumption, duration
+        return energy_consumption, duration, False
 
     def __str__(self):
         """Return the name of this power meter."""
@@ -142,11 +142,13 @@ class MonsoonPowerMeter(PowerMeter):
     def stop(self):
         """Stop measuring."""
         self.monsoon_reader.stop()
-        data_points = self.monsoon_reader.data.data_points
-        sample_hz = self.monsoon_reader.data.hz
-        energy_consumption = sum(data_points)/sample_hz/1000
-        duration = len(data_points)/sample_hz
-        return energy_consumption, duration
+        if self.monsoon_reader.data:
+            data_points = self.monsoon_reader.data.data_points
+            sample_hz = self.monsoon_reader.data.hz
+            energy_consumption = sum(data_points)/sample_hz/1000
+            duration = len(data_points)/sample_hz
+            return energy_consumption, duration
+        return -1, -1, True
 
     def __str__(self):
         """Return the name of this power meter with sample frequency."""
