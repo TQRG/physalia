@@ -70,26 +70,33 @@ class AndroidUseCase(object):
             Measurement: data collected from experiment
 
         """
-        self.prepare()
-        power_meter.start()
-        self._run()
-        energy_consumption, duration, error_flag = power_meter.stop()
-        self.cleanup()
-        if error_flag:
+        try:
+            self.prepare()
+            power_meter.start()
+            self._run()
+            energy_consumption, duration, error_flag = power_meter.stop()
+            self.cleanup()
+            if error_flag:
+                if retry_limit > 0:
+                    click.secho("Measurement has failed: retrying...", fg='yellow')
+                    return self.run(power_meter, retry_limit-1)
+                return None
+            return Measurement(
+                time.time(),
+                self.name,
+                self.app_pkg,
+                self.app_version,
+                android_utils.get_device_model(),
+                duration,
+                energy_consumption,
+                str(power_meter)
+            )
+        except BaseException as error:
+            click.secho(error.message, fg='red')
             if retry_limit > 0:
                 click.secho("Measurement has failed: retrying...", fg='yellow')
                 return self.run(power_meter, retry_limit-1)
-            return None
-        return Measurement(
-            time.time(),
-            self.name,
-            self.app_pkg,
-            self.app_version,
-            android_utils.get_device_model(),
-            duration,
-            energy_consumption,
-            str(power_meter)
-        )
+            raise error
 
     def profile(self, power_meter=default_power_meter,
                 verbose=True, count=30, retry_limit=1,
