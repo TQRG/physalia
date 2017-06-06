@@ -1,13 +1,52 @@
 CHANGES
 =======
 
+* fixed monsoon timeout errors
+* minor fix
+* minor fix
+* pretty print of measurement
+* fixed small error with energy_profiler tuples
+* added error_flag to executions return tuple
+* Choose power meter when running/profiling
+* lint files
+* clean async monsoon
+* clean async monsoon
+* first version of async monsoon collection
+* code linted
+* checking passlock
+* tolerant adb reconnect; check device screen; improved output
+* cleaning code
+* connecting android through wifi; setting up monsoon automatically;  switching on/off monsoon usb port
+* added whichcraft to the main requirements; added save csv method
+* Update README.md
+* Update README.md
+* collect monsoon data
+* monsoon multithread
+* added asic test for android use case
+* cleaning the house with pylint
+* fixed new pydocstyle
+* removed android view client support'
+* removed android view client support'
+* changelog
+* created android utils; minor changes
+* added badges pypi
+* added badges pypi
+* published  library on pypi
+* refactored greek alphabet
+* minor fix in utils.android
+* added android utils
+* fixed test for position in ranking tuple
+* fixed test for position in ranking tuple
+* assert for nth percentile
+* assert for nth percentile
+* ranking position
+* tox ignore docs conf.py
 * tox docs
 * fixed lint checks
 * pylint fixes
 * created failing test for consumption lower than app
 * creating asserts for energy consumption
 * created failing test for consumption lower than app
-* added docs
 * added physalia assert
 * refresh viewclient after starting it
 * tox.ini small changein requirements path

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Generic utils that are helpful in physalia."""
+"""Lists with symbols that are helpful in physalia."""
 
 GREEK_ALPHABET = {
     'Alpha':    u'\u0391',

@@ -1,8 +1,10 @@
 click
 numpy
 scipy
--e git+https://github.com/dtmilano/AndroidViewClient.git#egg=AndroidViewClient
+whichcraft
 
 #monsoon
 python-gflags
 pyserial
+mobly
+timeout-decorator

@@ -3,7 +3,7 @@ with F-Droid.
 """
 
 from time import sleep
-from physalia.energy_profiler import AndroidViewClientUseCase
+from samples.utils import AndroidViewClientUseCase
 
 # pylint: disable=invalid-name
 # this is just a script -- uppercase variables would look odd

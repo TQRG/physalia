@@ -3,10 +3,13 @@
 import csv
 import os
 import sys
+from string import Template
 from itertools import groupby
-import numpy
+from collections import OrderedDict
+import bisect
 from scipy.stats import ttest_ind
-
+import numpy
+from physalia.utils.symbols import GREEK_ALPHABET
 
 class Measurement(object):
     """Energy measurement information.
@@ -19,6 +22,8 @@ class Measurement(object):
         device_model            Device where the measurements were performed.
         duration                Time it takes to execute the use case.
         energy_consumption      Mean of the measurements.
+        power_meter             Name of the power meter used.
+
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -37,7 +42,8 @@ class Measurement(object):
             app_version,
             device_model,
             duration,
-            energy_consumption
+            energy_consumption,
+            power_meter="NA"
     ):  # noqa: D102
         self.persisted = False
         self.timestamp = timestamp
@@ -47,25 +53,44 @@ class Measurement(object):
         self.device_model = device_model
         self.duration = duration
         self.energy_consumption = energy_consumption
+        self.power_meter = power_meter
 
     def persist(self):
         """Store measurement in the database."""
         if self.persisted:
             return False
-        else:
-            with open(self.csv_storage, 'a') as csvfile:
-                csv_writer = csv.writer(csvfile)
-                csv_writer.writerow([
-                    self.timestamp,
-                    self.use_case,
-                    self.app_pkg,
-                    self.app_version,
-                    self.device_model,
-                    self.duration,
-                    self.energy_consumption,
-                ])
-            self.persisted = True
-            return True
+        self.save_to_csv(self.csv_storage)
+        self.persisted = True
+        return True
+
+    def save_to_csv(self, filename):
+        """Store measurements in a CSV file."""
+        with open(filename, 'a') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow([
+                self.timestamp,
+                self.use_case,
+                self.app_pkg,
+                self.app_version,
+                self.device_model,
+                self.duration,
+                self.energy_consumption,
+                self.power_meter
+            ])
+
+    def __str__(self):
+        """Get description of the measurement."""
+        return (
+            "Measurement for {}:\n"
+            "  {: <20}{:.4f}J\n"
+            "  {: <20}{}s\n"
+            "  {: <20}{}\n"
+            "  {: <20}{}"
+        ).format(self.use_case,
+                 "Energy consumption:", self.energy_consumption,
+                 "Duration:", self.duration,
+                 "Power meter:", self.power_meter,
+                 "Phone:", self.device_model)
 
     @classmethod
     def clear_database(cls):
@@ -88,6 +113,7 @@ class Measurement(object):
 
         Returns:
             List of unique apps.
+
         """
         return cls._get_unique_from_column(cls.COLUMN_APP_PKG)
 
@@ -97,6 +123,7 @@ class Measurement(object):
 
         Returns:
             List of unique use cases.
+
         """
         return cls._get_unique_from_column(cls.COLUMN_USE_CASE)
 
@@ -136,6 +163,7 @@ class Measurement(object):
 
         Returns:
             Tuple of Energy consumption mean, std, Duration mean, std.
+
         """
         len_measurements = len(measurements)
         if len_measurements == 0:
@@ -174,6 +202,7 @@ class Measurement(object):
 
         Returns:
             Tuple of Energy consumption mean, std, Duration mean, std.
+
         """
         measurements = cls.get_all_entries_of_app(app, use_case)
         return cls.describe(measurements)
@@ -192,6 +221,7 @@ class Measurement(object):
         Returns:
             t (float): The calculated t-statistic
             prob (float): The two-tailed p-value
+
         """
         return ttest_ind(
             [measurement.energy_consumption for measurement in sample_a],
@@ -210,9 +240,8 @@ class Measurement(object):
             sample_a (String): population name of sample a
             sample_b (String): population name of sample b
             out (file): data stream for output
+
         """
-        from string import Template
-        from physalia.utils import GREEK_ALPHABET
         alpha = 0.05
         _, pvalue = cls.hypothesis_test(sample_a, sample_b)
         rejected_null_h = alpha <= pvalue
@@ -248,15 +277,36 @@ class Measurement(object):
         """Ranking of the energy consumption of all apps.
 
         Get apps aggregated and sorted by mean energy consumption.
+
+        Returns:
+            OrderedDict with key=app_pkg and value=energy_consumption
+
         """
-        groups = []
-        uniquekeys = []
         with open(cls.csv_storage, 'rb') as csvfile:
             csv_reader = csv.reader(csvfile)
 
-            data = sorted(csv_reader, key=lambda row: row[cls.COLUMN_APP_PKG])
-            for k, group in groupby(data, lambda row: row[cls.COLUMN_APP_PKG]):
-                groups.append(list(group)) # Store group iterator as a list
-                uniquekeys.append(k)
-            print groups
-            print uniquekeys
+            data = [Measurement(*row) for row in csv_reader]
+            data = sorted(data, key=lambda msrmnt: msrmnt.app_pkg)
+            grouped_data = {
+                k: Measurement.mean_energy_consumption(list(group))
+                for (k, group) in groupby(
+                    data,
+                    key=lambda msrmnt: msrmnt.app_pkg
+                )
+            }
+            sorted_data = OrderedDict(sorted(
+                grouped_data.items(),
+                key=lambda (key, energy_consumption): energy_consumption
+            ))
+            return sorted_data
+
+    @classmethod
+    def get_position_in_ranking(cls, measurements):
+        """Get the position in ranking of a given sample of measurements."""
+        energy_ranking = cls.get_energy_ranking()
+        consumptions = energy_ranking.values()
+        energy_consumption = cls.mean_energy_consumption(measurements)
+        return (
+            bisect.bisect_left(consumptions, energy_consumption)+1,
+            len(consumptions)
+        )
