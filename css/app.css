@@ -13,11 +13,11 @@
 a.github-corner:hover{
     color: rgb(30,0,70);
 }
-.jumbotron h1, h3{
+.jumbotron h1,.jumbotron h3{
     opacity:0.8;
 }
 
-h1{
+.jumbotron h1{
 	font-family: 'Helvetica Neue';
 	font-style: normal;
 	font-variant: normal;
@@ -32,7 +32,7 @@ h1{
        url('fonts/Helvetica/Helvetica.ttf') format('truetype'),
        url('fonts/Helvetica/Helvetica.svg#wf') format('svg');
 }
-h3 {
+.jumbotron h3 {
        font-weight: 300;
 }
 
