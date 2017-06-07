@@ -91,6 +91,8 @@ class AndroidUseCase(object):
                 energy_consumption,
                 str(power_meter)
             )
+        except KeyboardInterrupt as e:
+            raise e
         except BaseException as error:
             click.secho(error.message, fg='red')
             if retry_limit > 0:
@@ -113,12 +115,15 @@ class AndroidUseCase(object):
 
         """
         results = []
-        for _ in range(count):
+        for i in range(count):
             result = self.run(power_meter=power_meter, retry_limit=retry_limit)
-            results.append(result)
-            if save_to_csv:
-                result.save_to_csv(save_to_csv)
-        if verbose:
+            if result:
+                results.append(result)
+                if save_to_csv:
+                    result.save_to_csv(save_to_csv)
+            else:
+                click.secho("Error in execution {} of {}. Skipping.".format(i, self.name), fg="red")
+        if verbose and results:
             click.secho("Energy consumption results for {}: "
                         "{:.3f} Joules (s = {:.3f}).\n"
                         "It took {:.1f} seconds (s = {:.1f})."

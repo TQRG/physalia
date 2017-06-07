@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* run method more tolerant to failures
 * fixed monsoon timeout errors
 * minor fix
 * minor fix
@@ -47,6 +48,7 @@ CHANGES
 * created failing test for consumption lower than app
 * creating asserts for energy consumption
 * created failing test for consumption lower than app
+* added docs
 * added physalia assert
 * refresh viewclient after starting it
 * tox.ini small changein requirements path

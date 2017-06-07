@@ -61,13 +61,13 @@ class MonsoonPowerMeter(PowerMeter):
     Your server and device have to be connected to the same network.
     """
 
-    def __init__(self, voltage=3.8, sample_hz=50000, serial=12886):  # noqa: D102
+    def __init__(self, voltage=3.8, serial=12886):  # noqa: D102
         self.monsoon = None
         self.monsoon_reader = None
         self.monsoon_data = None
         self.voltage = None
         self.serial = None
-        self.sample_hz = sample_hz
+        self.sample_hz = 10
 
         self.setup_monsoon(voltage, serial)
         click.secho(
@@ -79,18 +79,22 @@ class MonsoonPowerMeter(PowerMeter):
                 "You can now turn the phone on.",
                 fg='blue'
             )
-        for _ in range(50):
-            click.secho(
-                "Waiting for an Android device...",
-                fg='blue'
-            )
-            time.sleep(3)
+        for i in range(180):
+            time.sleep(1)
             if android.is_android_device_available():
+                time.sleep(2)
                 click.secho(
                     "Found a {}!".format(android.get_device_model()),
                     fg='green'
                 )
                 break
+            if i%15 == 0:
+                click.secho(
+                    "Waiting for an Android device...",
+                    fg='blue'
+                )
+            if i == 50:
+                raise Exception("Could not find device.")
         android.connect_adb_through_wifi()
         self.monsoon_usb_enabled(False)
         if android.is_locked():
@@ -117,6 +121,8 @@ class MonsoonPowerMeter(PowerMeter):
         self.serial = serial
         self.voltage = voltage
         self.monsoon = Monsoon(serial=self.serial)
+        
+        self.monsoon.mon._FlushInput() # make sure old failures are gone
         self.monsoon.set_voltage(self.voltage)
         if android.is_android_device_available():
             android.reconnect_adb_through_usb()
@@ -135,7 +141,7 @@ class MonsoonPowerMeter(PowerMeter):
         """Start measuring energy consumption."""
         self.monsoon_reader = monsoon_async.MonsoonReader(
             self.monsoon,
-            self.sample_hz
+            10
         )
         self.monsoon_reader.prepare()
         self.monsoon_reader.start()
@@ -152,5 +158,5 @@ class MonsoonPowerMeter(PowerMeter):
         return -1, -1, True
 
     def __str__(self):
-        """Return the name of this power meter with sample frequency."""
-        return "Monsoon-{}Hz".format(self.sample_hz)
+        """Return the name of this power meter."""
+        return "Monsoon"
