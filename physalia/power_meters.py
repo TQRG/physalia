@@ -121,7 +121,9 @@ class MonsoonPowerMeter(PowerMeter):
         self.serial = serial
         self.voltage = voltage
         self.monsoon = Monsoon(serial=self.serial)
-        
+
+        # pylint: disable=protected-access
+        # this is a HACK
         self.monsoon.mon._FlushInput() # make sure old failures are gone
         self.monsoon.set_voltage(self.voltage)
         if android.is_android_device_available():

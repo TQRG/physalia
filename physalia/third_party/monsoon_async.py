@@ -9,6 +9,8 @@ import time
 from threading import Event, Thread
 from physalia.third_party.monsoon import MonsoonData
 
+# pylint: disable=protected-access
+
 PLEASE_STOP = Event()
 
 class MonsoonReader(Thread):
@@ -98,7 +100,8 @@ class MonsoonReader(Thread):
                 # The number of raw samples to consume before emitting the next
                 # output
                 need = int((self._monsoon_native_hz - offset + sample_hz - 1) / sample_hz)
-                if need > len(collected) and not self._please_stop.is_set():  # still need more input samples
+                if need > len(collected) and not self._please_stop.is_set():
+                    # still need more input samples
                     samples = monsoon.mon.CollectData()
                     if not samples:
                         break
