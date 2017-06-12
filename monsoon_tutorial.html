@@ -23,13 +23,13 @@
 </h1>
 </header>
 <p class="lead">
-    In this tutorial we will be going through how to measure the energy consumption of your mobile application using the <strong>Monsoon Power Monitor</strong> with the smartphone <strong>Nexus 5X</strong>.
+    In this tutorial we are going through how to measure the energy consumption of your mobile application using the <strong>Monsoon Power Monitor</strong> with the smartphone <strong>Nexus 5X</strong>.
 </p>
 <p>
-Writing energy efficient code is very important when it comes to mobile applications development. However, having a setup for energy measurements can be a complex task. Besides, most developers (like me) don't have the knowledge required to do it without some help.
+Writing energy efficient code is very important when it comes to mobile applications development. However, having a setup for energy measurements can be a complex task. Besides, most developers (like us) don't have the knowledge required to do it without some help.
 </p>
 <p>
-In this article I will show how I have set up my experiments. I will go over how to open a Nexus 5X and connect it to a power monitor. This can help developers easily start measuring their Android apps.
+In this article we show how we have set up out experiments. We go over how to open a Nexus 5X and connect it to a power monitor. This can help developers easily start measuring their Android apps.
 </p>
 
 <p class="text-danger">
@@ -47,7 +47,7 @@ In this article I will show how I have set up my experiments. I will go over how
 
 <h3>Opening Nexus 5X</h3>
 <p>
-In order to measure energy consumption we have to remove the battery and replace it with our new power supply &mdash; Monsoon. This means that we need to remove the battery!
+In order to measure energy consumption we have to replace the battery with our new power supply &mdash; Monsoon. This means that we need to remove the battery!
 </p>
 <p>This task used to be simpler, however most phones nowadays do not come with a replaceable battery.
 The phone has to be opened.
@@ -58,9 +58,9 @@ There are many tutorials online that make it simple by going through all the ste
 <h3>Bypassing the battery</h3>
 
 <p>
-Now that we removed the battery we can see that it no longer comes with two simple positive and negative connectors.
-It comes with a very small plug that makes it hard to replicate a properly isolated connection.
-In addition, the battery also sends a digital code that is required to make the phone work. Unfortunately, this code is not replicated by the power monitor.
+Now that we removed the battery we can see that it no longer comes with two traditional positive and negative connectors.
+It comes with a very small plug, which makes it hard to make a proper and isolated connection.
+In addition, the battery also sends a digital code that is required to make the phone work. Unfortunately, this code cannot be replicated by the power monitor.
 </p>
 <figure>
     <img class="img-rounded img-responsive center-block" src="media/nexus_battery_notated.JPG" width="410" height="410" alt="Nexus Battery">
@@ -69,11 +69,11 @@ In addition, the battery also sends a digital code that is required to make the 
 Basically this means that our battery comes with two main parts: <strong>battery cells</strong> that provide the power and an <strong>integrated electronic component</strong> that, among other things, generates the required signal.
 </p>
 <figure>
-two parts of the battery
+<img class="img-rounded img-responsive center-block" src="media/nexus_eletronic_component.png" width="410" height="410" alt="Nexus Eletronic Component">
 </figure>
 <p>
-The cleanest solution is to disassemble the battery, by removing the cells.
-<span class='text-danger'>Be aware that this part requires extra care. Battery cells must be intact, and positive and negative connectors must be isolated. 
+The cleanest solution is to disassemble the battery, and separate the cells from the electronic component.
+<span class='text-danger'>Be aware that this part requires extra care. Battery cells must be intact, and positive and negative connectors must always be isolated from each other. 
 </span>
 </p>
 <p>
@@ -86,11 +86,11 @@ Note that this point is irreversible.
 The cell was connected to the electronic component simply by the negative and positive poles. As shown in the figure below, solder a black and a colored wire to these connectors in the electronic component. As a standard rule, connect the black to the negative pole, and the colored (usually red) to the positive.
 Use electrical tape to insulate the solderings.
 </p>
+<p>Now we can assemble our component back to the phone.</p>
 <figure>
-    figure showing the electronic component
+    <img class="img-rounded img-responsive center-block"src="media/nexus_soldering.png" width="670" height="335" alt="Nexus Soldering">
 </figure>
 <p>
-Now we can assemble our component back to the phone.<br/>
 <span class="text-success">The phone is ready to be connected to Monsoon!</span>
 </p>
 
@@ -99,9 +99,13 @@ Now we can assemble our component back to the phone.<br/>
 Monsoon comes with two handy wires to connect the power supplier. Connect them to the wires in the phone. Positive pole with positive pole and negative pole with negative pole &mdash; i.e., black with black and colored with colored.
 </p>
 
-<h3>Controlling Monsoon with computer</h3>
+<figure>
+    <img class="img-rounded img-responsive center-block" src="media/nexus_monsoon_back.png" width="410" alt="Nexus Monsoon Back">
+</figure>
+
+<h3>Controlling Monsoon from a computer</h3>
 <p>
-In a computer open a terminal and install <a href='https://tqrg.github.io/physalia' target='_blank'>Physalia</a>:
+Open a terminal window and install <a href='https://tqrg.github.io/physalia' target='_blank'>Physalia</a>:
 </p>
 <pre>
 $ pip install physalia
@@ -118,7 +122,7 @@ power_meter = MonsoonPowerMeter(voltage=3.8, sample_hz=5000, serial=12886)
 power_meter.start()
 sleep(5)
 duration, energy, _ = power_meter.stop()
-print "{} Joules consumed in {} seconds.".format(duration, energy)
+print "{} Joules consumed in {} seconds.".format(energy, duration)
 
 </pre>
 <p>
@@ -138,19 +142,26 @@ If everything goes as expected, the script will give you the energy spent in fiv
 </p>
 <h3>It's done!</h3>
 <p>
-Good job! Now feel free to play around and explore the rest of the <a href='https://tqrg.github.io/physalia' target='_blank'>Physalia</a> library. It comes with several other features that make energy measurements easy for Android apps. Note that, for safety reasons, it is recommended to reassemble the other parts of the phone.
+
+<figure>
+    <img class="img-rounded img-responsive center-block" src="media/nexus_front.png" width="500" alt="Nexus Front">
+</figure>
+    
+Good job! Now feel free to play around and explore the rest of the library <a href='https://tqrg.github.io/physalia' target='_blank'>Physalia</a>. It comes with many other features that make energy measurements easy for Android apps. Note that, for safety reasons, it is recommended to reassemble the other parts of the phone.
 </p>
 <p>
-If you need extra help or have feedback, <a href="http://luiscruz.github.io/" target="_blank">get in touch</a>!
+If you need extra help or have feedback, get in touch!
 </p>
 
 <h4>Acknowlegments</h4>
 <p>
-Thanks <a href="http://sips.inesc-id.pt/~rjfc/" target='_blank'>Prof. Ricardo Chaves</a> for the valuable help given to set up Monsoon. He has the credits for disassembling the battery, soldering, and specially for coming up with this solution to bypass the battery. I did not have the knowledge to do it by myself. I hope this article will help developers that cannot count on the help of a Prof. Ricardo.
+Kudos to <a href="http://sips.inesc-id.pt/~rjfc/" target='_blank'>Prof. Ricardo Chaves</a> for the valuable help given to set up Monsoon. He has the credits for disassembling the battery, soldering, and specially for coming up with this solution to bypass the battery. We did not have the knowledge to do it by ourselves. We hope this article will help developers that cannot count on the help of a Prof. Ricardo.
 </p>
 
+<hr/>
 <footer>
-&copy; 2017 <a href="http://luiscruz.github.io/" target="_blank">Luis Cruz</a> and <a href="http://ruimaranhao.com/"  target="_blank">Rui Abreu</a>.
+<p>&copy; 2017 <a href="http://luiscruz.github.io/" target="_blank">Luis Cruz</a> and <a href="http://ruimaranhao.com/"  target="_blank">Rui Abreu</a>.
+</p>
 </footer>
 </article>
 
