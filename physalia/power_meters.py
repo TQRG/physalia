@@ -93,7 +93,7 @@ class MonsoonPowerMeter(PowerMeter):
                     "Waiting for an Android device...",
                     fg='blue'
                 )
-            if i == 50:
+            if i == 180:
                 raise Exception("Could not find device.")
         android.connect_adb_through_wifi()
         self.monsoon_usb_enabled(False)
