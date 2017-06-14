@@ -96,7 +96,6 @@ class AndroidUseCase(object):
             if retry_limit > 0:
                 click.secho("Measurement has failed: retrying...", fg='yellow')
                 return self.run(power_meter, retry_limit-1)
-            print traceback.format_exc()
             error.printStackTrace()
             raise error
 
