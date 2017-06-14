@@ -9,6 +9,8 @@ import time
 from threading import Event, Thread
 from physalia.third_party.monsoon import MonsoonData
 
+# pylint: disable=protected-access
+
 PLEASE_STOP = Event()
 
 class MonsoonReader(Thread):
@@ -32,6 +34,7 @@ class MonsoonReader(Thread):
     def prepare(self):
         """Prepare monsoon to start measuring."""
         sys.stdout.flush()
+        self.monsoon.mon._FlushInput() # make sure old failures are gone
         self._monsoon_voltage = self.monsoon.mon.GetVoltage()
         self.monsoon.log.info(
             "Taking samples at %dhz, voltage %.2fv.",
@@ -97,7 +100,8 @@ class MonsoonReader(Thread):
                 # The number of raw samples to consume before emitting the next
                 # output
                 need = int((self._monsoon_native_hz - offset + sample_hz - 1) / sample_hz)
-                if need > len(collected):  # still need more input samples
+                if need > len(collected) and not self._please_stop.is_set():
+                    # still need more input samples
                     samples = monsoon.mon.CollectData()
                     if not samples:
                         break
@@ -114,13 +118,13 @@ class MonsoonReader(Thread):
                         timestamps.append(this_time)
                         if live:
                             monsoon.log.info("%s %s", this_time, this_sample)
+                            sys.stdout.flush()
                         current_values.append(this_sample)
-                        sys.stdout.flush()
                         offset -= self._monsoon_native_hz
                         emitted += 1  # adjust for emitting 1 output sample
                     collected = collected[need:]
                     now = time.time()
-                    if now - last_flush >= 0.99:  # flush every second
+                    if now - last_flush >= 0.99 and live:  # flush every second
                         sys.stdout.flush()
                         last_flush = now
         except Exception:

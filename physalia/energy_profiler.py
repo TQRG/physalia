@@ -7,6 +7,7 @@ import click
 from physalia.power_meters import EmulatedPowerMeter
 from physalia.models import Measurement
 import physalia.utils.android as android_utils
+from physalia.exceptions import PhysaliaExecutionFailed
 
 
 class AndroidUseCase(object):
@@ -77,10 +78,7 @@ class AndroidUseCase(object):
             energy_consumption, duration, error_flag = power_meter.stop()
             self.cleanup()
             if error_flag:
-                if retry_limit > 0:
-                    click.secho("Measurement has failed: retrying...", fg='yellow')
-                    return self.run(power_meter, retry_limit-1)
-                return None
+                raise PhysaliaExecutionFailed()
             return Measurement(
                 time.time(),
                 self.name,
@@ -91,6 +89,8 @@ class AndroidUseCase(object):
                 energy_consumption,
                 str(power_meter)
             )
+        except KeyboardInterrupt as error:
+            raise error
         except BaseException as error:
             click.secho(error.message, fg='red')
             if retry_limit > 0:
@@ -113,12 +113,15 @@ class AndroidUseCase(object):
 
         """
         results = []
-        for _ in range(count):
+        for i in range(count):
             result = self.run(power_meter=power_meter, retry_limit=retry_limit)
-            results.append(result)
-            if save_to_csv:
-                result.save_to_csv(save_to_csv)
-        if verbose:
+            if result:
+                results.append(result)
+                if save_to_csv:
+                    result.save_to_csv(save_to_csv)
+            else:
+                click.secho("Error in execution {} of {}. Skipping.".format(i, self.name), fg="red")
+        if verbose and results:
             click.secho("Energy consumption results for {}: "
                         "{:.3f} Joules (s = {:.3f}).\n"
                         "It took {:.1f} seconds (s = {:.1f})."

@@ -97,7 +97,15 @@ def is_android_device_available():
     result = subprocess.check_output("adb devices", shell=True)
     devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
     devices = [device for device in devices if len(device) > 2]
-    return len(devices) > 0
+    if not devices:
+        return False
+    try:
+        result = subprocess.check_output(
+            "adb shell getprop sys.boot_completed",
+            shell=True).strip()
+        return result == "1"
+    except subprocess.CalledProcessError:
+        return False
 
 def get_device_model(serialno=None):
     """Get the currently connected device model."""
