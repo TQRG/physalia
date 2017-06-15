@@ -123,13 +123,26 @@ class MonsoonReader(Thread):
                         offset -= self._monsoon_native_hz
                         emitted += 1  # adjust for emitting 1 output sample
                     collected = collected[need:]
-                    now = time.time()
-                    if now - last_flush >= 0.99 and live:  # flush every second
-                        sys.stdout.flush()
-                        last_flush = now
-        except Exception:
-            pass
-        monsoon.mon.StopDataCollection()
+                    if live:
+                        now = time.time()
+                        if now - last_flush >= 0.99:  # flush every second
+                            sys.stdout.flush()
+                            last_flush = now
+            monsoon.mon.StopDataCollection()
+            # hack to read measurements in the last second
+            while len(collected) > need:
+                # TODO(angli): Optimize "collected" operations.
+                this_sample = sum(collected[:need]) / need
+                this_time = int(time.time())
+                timestamps.append(this_time)
+                if live:
+                    monsoon.log.info("%s %s", this_time, this_sample)
+                    sys.stdout.flush()
+                current_values.append(this_sample)
+                emitted += 1  # adjust for emitting 1 output sample
+                collected = collected[need:]
+        except Exception as error:
+            print error
         try:
             self.data = MonsoonData(
                 current_values,
@@ -138,6 +151,7 @@ class MonsoonReader(Thread):
                 self._monsoon_voltage,
                 offset=sample_offset
             )
-        except Exception:
+        except Exception as error:
+            print error
             self.data = None
             self.error_flag = True
