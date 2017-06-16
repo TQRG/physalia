@@ -115,22 +115,27 @@ Now open your favorite editor and create a simple Python script:
 </p>
 <pre>
 # myscript.py
-from physalia.power_meters import MonsoonPowerMeter
-from time import sleep
 
-power_meter = MonsoonPowerMeter(voltage=3.8, sample_hz=5000, serial=12886)
-power_meter.start()
-sleep(5)
-duration, energy, _ = power_meter.stop()
-print "{} Joules consumed in {} seconds.".format(energy, duration)
+import time
+from physalia.power_meters import MonsoonPowerMeter
+from physalia.energy_profiler import AndroidUseCase
+
+power_meter = MonsoonPowerMeter(voltage=3.8, serial=12886)
+
+def run(_):
+    time.sleep(5)
+use_case = AndroidUseCase('physalia-simple-tutorial', None, 'na', 'na', run=run)
+
+measurement = use_case.run(power_meter=power_meter)
+print measurement
 
 </pre>
 <p>
 
-It sets the power supply to 3.8V. Be sure to change the Monsoon's serial number.
+This script basically sets Monsoon's power supply to 3.8V and measures energy consumption for 5 seconds. Be sure to change <code>serial</code> to your Monsoon's serial number.
 </p>
 <p>
-Run the script with:
+Run it with:
 </p>
 <pre>
 $ python myscript.py
@@ -138,7 +143,7 @@ $ python myscript.py
 
 After finding and connecting Monsoon, it prompts to turn on the mobile device.
 Once Nexus 5X is up and running, connect it through USB to the Monsoon.
-If everything goes as expected, the script will give you the energy spent in five seconds.
+If everything goes as expected, the script will give you the energy spent during five seconds expressed in Joules (J).
 </p>
 <h3>It's done!</h3>
 <p>
