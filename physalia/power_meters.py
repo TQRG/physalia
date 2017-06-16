@@ -143,7 +143,7 @@ class MonsoonPowerMeter(PowerMeter):
         """Start measuring energy consumption."""
         self.monsoon_reader = monsoon_async.MonsoonReader(
             self.monsoon,
-            10
+            sample_hz=50
         )
         self.monsoon_reader.prepare()
         self.monsoon_reader.start()
@@ -157,6 +157,7 @@ class MonsoonPowerMeter(PowerMeter):
             energy_consumption = sum(data_points)/sample_hz/1000
             duration = len(data_points)/sample_hz
             return energy_consumption, duration, False
+        # no data => error_flag=True
         return -1, -1, True
 
     def __str__(self):

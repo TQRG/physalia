@@ -96,6 +96,9 @@ class AndroidUseCase(object):
             if retry_limit > 0:
                 click.secho("Measurement has failed: retrying...", fg='yellow')
                 return self.run(power_meter, retry_limit-1)
+            printstack = getattr(error, "printStackTrace", None)
+            if callable(printstack):
+                printstack()
             raise error
 
     def profile(self, power_meter=default_power_meter,

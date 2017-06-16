@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+* updated CLI
+* fixed short time measurements; added monsoon utils
+* print trace in error
+* print trace in error
+* bug in device available timeout
+* clean code
 * added exceptions to physalia
 * android utils: improved android availability function
 * removed hz from monsoon power meter; refining monsoon readings
