@@ -26,11 +26,10 @@ from physalia.power_meters import MonsoonPowerMeter, EmulatedPowerMeter
 @click.argument('exec_expression')
 def tool(count, power_meter, voltage, serial, exec_expression):
     """Measure energy consumption while running a bash expression.
-    
+
     Example:
         physalia --serial 12886 -V 3.8  "sleep 5"
     """
-
     physalia_power_meter = None
     if power_meter == 'monsoon':
         if not (voltage and serial):
