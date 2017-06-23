@@ -28,6 +28,10 @@ class PowerMeter(object):
         """
         return
 
+    def reinit(self):
+        """Reinitialize power meter upon unexpected behavior."""
+        pass
+
 
 class EmulatedPowerMeter(PowerMeter):
     """PowerMeter implementation to emulate a power monitor."""
@@ -103,6 +107,16 @@ class MonsoonPowerMeter(PowerMeter):
                 "Disabling Passlock is recommended!",
                 fg='yellow'
             )
+
+    def reinit(self):
+        """Reinitialize power meter upon unexpected behavior."""
+        click.secho(
+            "Danger: Reinitializing Monsoon connection...",
+            fg='yellow'
+        )
+        self.monsoon.mon.ser.close()
+        self.monsoon = Monsoon(serial=self.serial)
+
 
     def setup_monsoon(self, voltage, serial):
         """Set up monsoon.

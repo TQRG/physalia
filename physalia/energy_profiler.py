@@ -92,9 +92,17 @@ class AndroidUseCase(object):
         except KeyboardInterrupt as error:
             raise error
         except BaseException as error:
+            click.secho("Measurement {} has failed".format(self.name), fg='red')
+            click.secho(str(error), fg='red')
             click.secho(error.message, fg='red')
+            if retry_limit == 1:
+                # click.secho("Waiting 5 minutes for Monsoon to recover...", fg='red')
+                # time.sleep(5*60)
+                # hack: reinit power_meter
+                power_meter.reinit()
+
             if retry_limit > 0:
-                click.secho("Measurement has failed: retrying...", fg='yellow')
+                click.secho("Retrying...", fg='yellow')
                 return self.run(power_meter, retry_limit-1)
             printstack = getattr(error, "printStackTrace", None)
             if callable(printstack):
