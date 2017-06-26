@@ -93,7 +93,7 @@ class MonsoonPowerMeter(PowerMeter):
                     "Waiting for an Android device...",
                     fg='blue'
                 )
-            if i == 50:
+            if i == 180:
                 raise Exception("Could not find device.")
         android.connect_adb_through_wifi()
         self.monsoon_usb_enabled(False)
@@ -121,7 +121,9 @@ class MonsoonPowerMeter(PowerMeter):
         self.serial = serial
         self.voltage = voltage
         self.monsoon = Monsoon(serial=self.serial)
-        
+
+        # pylint: disable=protected-access
+        # this is a HACK
         self.monsoon.mon._FlushInput() # make sure old failures are gone
         self.monsoon.set_voltage(self.voltage)
         if android.is_android_device_available():
@@ -141,7 +143,7 @@ class MonsoonPowerMeter(PowerMeter):
         """Start measuring energy consumption."""
         self.monsoon_reader = monsoon_async.MonsoonReader(
             self.monsoon,
-            10
+            sample_hz=50
         )
         self.monsoon_reader.prepare()
         self.monsoon_reader.start()
@@ -155,6 +157,7 @@ class MonsoonPowerMeter(PowerMeter):
             energy_consumption = sum(data_points)/sample_hz/1000
             duration = len(data_points)/sample_hz
             return energy_consumption, duration, False
+        # no data => error_flag=True
         return -1, -1, True
 
     def __str__(self):

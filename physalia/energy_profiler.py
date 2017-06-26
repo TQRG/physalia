@@ -7,6 +7,7 @@ import click
 from physalia.power_meters import EmulatedPowerMeter
 from physalia.models import Measurement
 import physalia.utils.android as android_utils
+from physalia.exceptions import PhysaliaExecutionFailed
 
 
 class AndroidUseCase(object):
@@ -77,10 +78,7 @@ class AndroidUseCase(object):
             energy_consumption, duration, error_flag = power_meter.stop()
             self.cleanup()
             if error_flag:
-                if retry_limit > 0:
-                    click.secho("Measurement has failed: retrying...", fg='yellow')
-                    return self.run(power_meter, retry_limit-1)
-                return None
+                raise PhysaliaExecutionFailed()
             return Measurement(
                 time.time(),
                 self.name,
@@ -91,13 +89,16 @@ class AndroidUseCase(object):
                 energy_consumption,
                 str(power_meter)
             )
-        except KeyboardInterrupt as e:
-            raise e
+        except KeyboardInterrupt as error:
+            raise error
         except BaseException as error:
             click.secho(error.message, fg='red')
             if retry_limit > 0:
                 click.secho("Measurement has failed: retrying...", fg='yellow')
                 return self.run(power_meter, retry_limit-1)
+            printstack = getattr(error, "printStackTrace", None)
+            if callable(printstack):
+                printstack()
             raise error
 
     def profile(self, power_meter=default_power_meter,
