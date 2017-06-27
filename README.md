@@ -43,4 +43,4 @@ If you find an issue you can actually help fixing please make a pull request of 
 
 To run all tests and checks locally run:
 
-`detox -e py27,py36`
+`$ detox -e py27,py36`
