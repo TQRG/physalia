@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* python3 compatible; added violinplots
 * fixed merge conflict
 * fixed merge conflict
 * added a reinit feature to power meters --- to be used in case the power meter starts behaving unexpectedly

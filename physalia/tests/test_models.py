@@ -2,11 +2,8 @@
 """
 
 import unittest
-from mock import patch, MagicMock
 from physalia.models import Measurement
-from physalia.utils.symbols import GREEK_ALPHABET
 from physalia.fixtures.models import create_measurement
-from physalia.fixtures.models import create_random_samples
 from physalia.fixtures.models import create_random_sample
 
 # pylint: disable=missing-docstring
@@ -71,68 +68,6 @@ class TestMeasurement(unittest.TestCase):
         for (first, second) in zip(real_stats, expected_stats):
             self.assertAlmostEqual(first, second, places=3)
 
-    def test_hypothesis_test(self):
-        sample_a, sample_b = create_random_samples()
-        _, pvalue = Measurement.hypothesis_test(sample_a, sample_b)
-        self.assertLess(pvalue, 0.05)
-
-    def test_fancy_hypothesis_test(self):
-        try:
-            from StringIO import StringIO
-        except ImportError:
-            from io import StringIO
-        from string import Template
-
-        # sample_a, sample_b = create_random_samples()
-        with patch('physalia.models.Measurement.hypothesis_test',
-                   MagicMock(return_value=(0, 0.0001))):
-            out = StringIO()
-            Measurement.fancy_hypothesis_test(
-                None, None,
-                "login with email",
-                "login with facebook",
-                out=out
-            )
-            output = out.getvalue()
-
-            self.assertEqual(
-                output,
-                Template(
-                    "Hypothesis testing:\n"
-                    "\t$H0: $mu login with email = $mu login with facebook.\n"
-                    "\t$H1: $mu login with email $neq $mu login with facebook.\n"
-                    "\n"
-                    "Applying Welch's t-test with $alpha=0.05, the null"
-                    " hypothesis is rejected (p-value=<0.001).\n"
-                    "Thus, one can say that the means of populations"
-                    " \"login with email\" and \"login with facebook\" are"
-                    " different.\n"
-                ).substitute(GREEK_ALPHABET)
-            )
-        with patch('physalia.models.Measurement.hypothesis_test',
-                   MagicMock(return_value=(0, 0.061231))):
-            out = StringIO()
-            Measurement.fancy_hypothesis_test(
-                None, None,
-                "login with email",
-                "login with facebook",
-                out=out
-            )
-            output = out.getvalue()
-            self.assertEqual(
-                output,
-                Template(
-                    "Hypothesis testing:\n"
-                    "\t$H0: $mu login with email = $mu login with facebook.\n"
-                    "\t$H1: $mu login with email $neq $mu login with facebook.\n"
-                    "\n"
-                    "Applying Welch's t-test with $alpha=0.05, the null"
-                    " hypothesis is not rejected (p-value=0.061).\n"
-                    "Thus, it was not possible to find evidence that"
-                    " the means of populations login with email and "
-                    "login with facebook are different.\n"
-                ).substitute(GREEK_ALPHABET)
-            )
 
     def test_get_energy_ranking(self):
         sample = (
