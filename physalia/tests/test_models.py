@@ -23,9 +23,9 @@ class TestMeasurement(unittest.TestCase):
         measurement.persist()
         with open(self.TEST_CSV_STORAGE, 'r') as file_desc:
             content = file_desc.read()
-        self.assertTrue(
-            """1485634263.096069,login,com.package,1.0.0,Nexus 5X,2,30"""
-            in content
+        self.assertIn(
+            """1485634263.096069,login,com.package,1.0.0,Nexus 5X,2.0,30.0,NA""",
+            content
         )
 
     def test_get_unique_apps(self):
@@ -77,7 +77,10 @@ class TestMeasurement(unittest.TestCase):
         self.assertLess(pvalue, 0.05)
 
     def test_fancy_hypothesis_test(self):
-        from StringIO import StringIO
+        try:
+            from StringIO import StringIO
+        except ImportError:
+            from io import StringIO
         from string import Template
 
         # sample_a, sample_b = create_random_samples()
@@ -144,7 +147,7 @@ class TestMeasurement(unittest.TestCase):
             measurement.persist()
         ranking = Measurement.get_energy_ranking()
         self.assertEqual(
-            ranking.keys(),
+            list(ranking.keys()),
             [
                 "com.app1",
                 "com.app2",

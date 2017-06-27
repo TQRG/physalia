@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* fixed merge conflict
+* fixed merge conflict
+* added a reinit feature to power meters --- to be used in case the power meter starts behaving unexpectedly
 * added simple example
 * conflict
 * changelog

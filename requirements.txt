@@ -1,6 +1,7 @@
 click
 numpy
 scipy
+statsmodels
 whichcraft
 
 #monsoon
@@ -8,3 +9,6 @@ python-gflags
 pyserial
 mobly
 timeout-decorator
+
+#analytics
+matplotlib

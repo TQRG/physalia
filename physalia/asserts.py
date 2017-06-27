@@ -37,4 +37,10 @@ def top_percentile(sample, nth):
         use_case (string: identifier of the use case used to create the ranking
     """
     position, total = Measurement.get_position_in_ranking(sample)
-    assert float(position)/total*100 <= nth
+    percentile_position = float(position)/total*100
+    assert percentile_position <= nth,\
+           ("Given sample is not on {:.1f}% top percentile "
+            "(Position: {:.1f}%)".format(
+                nth,
+                percentile_position
+            ))

@@ -15,4 +15,4 @@ def run(_):
 use_case = AndroidUseCase('physalia-simple-tutorial', None, 'na', 'na', run=run)
 
 measurement = use_case.run(power_meter=power_meter)
-print measurement
+print(measurement)

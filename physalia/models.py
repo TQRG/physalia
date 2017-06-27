@@ -6,6 +6,7 @@ import sys
 from string import Template
 from itertools import groupby
 from collections import OrderedDict
+from operator import itemgetter
 import bisect
 from scipy.stats import ttest_ind
 import numpy
@@ -46,13 +47,13 @@ class Measurement(object):
             power_meter="NA"
     ):  # noqa: D102
         self.persisted = False
-        self.timestamp = timestamp
+        self.timestamp = float(timestamp)
         self.use_case = use_case
         self.app_pkg = app_pkg
         self.app_version = app_version
         self.device_model = device_model
-        self.duration = duration
-        self.energy_consumption = energy_consumption
+        self.duration = float(duration)
+        self.energy_consumption = float(energy_consumption)
         self.power_meter = power_meter
 
     def persist(self):
@@ -103,7 +104,7 @@ class Measurement(object):
     @classmethod
     def _get_unique_from_column(cls, column_index):
         """Get unique values of the given column."""
-        with open(cls.csv_storage, 'rb') as csvfile:
+        with open(cls.csv_storage, 'rt') as csvfile:
             csv_reader = csv.reader(csvfile)
             return {row[column_index] for row in csv_reader}
 
@@ -133,7 +134,7 @@ class Measurement(object):
 
         If the use_case is None, all use_cases are retrieved.
         """
-        with open(cls.csv_storage, 'rb') as csvfile:
+        with open(cls.csv_storage, 'rt') as csvfile:
             csv_reader = csv.reader(csvfile)
             return [
                 Measurement(*row) for row in csv_reader
@@ -255,7 +256,7 @@ class Measurement(object):
                                                 name_b=name_b)
         )
         out.write(u"Applying Welch's t-test with {alpha_letter}=0.05, the null"
-                  " hypothesis is{negate} rejected (p-value={pvalue}).\n".format(
+                  u" hypothesis is{negate} rejected (p-value={pvalue}).\n".format(
                       negate=" not" if rejected_null_h else "",
                       pvalue="<0.001" if pvalue < 0.001 else "{:.3f}".format(pvalue),
                       alpha_letter=GREEK_ALPHABET['alpha']
@@ -282,7 +283,7 @@ class Measurement(object):
             OrderedDict with key=app_pkg and value=energy_consumption
 
         """
-        with open(cls.csv_storage, 'rb') as csvfile:
+        with open(cls.csv_storage, 'rt') as csvfile:
             csv_reader = csv.reader(csvfile)
 
             data = [Measurement(*row) for row in csv_reader]
@@ -295,8 +296,8 @@ class Measurement(object):
                 )
             }
             sorted_data = OrderedDict(sorted(
-                grouped_data.items(),
-                key=lambda (key, energy_consumption): energy_consumption
+                list(grouped_data.items()),
+                key=itemgetter(1)
             ))
             return sorted_data
 
@@ -304,7 +305,7 @@ class Measurement(object):
     def get_position_in_ranking(cls, measurements):
         """Get the position in ranking of a given sample of measurements."""
         energy_ranking = cls.get_energy_ranking()
-        consumptions = energy_ranking.values()
+        consumptions = list(energy_ranking.values())
         energy_consumption = cls.mean_energy_consumption(measurements)
         return (
             bisect.bisect_left(consumptions, energy_consumption)+1,

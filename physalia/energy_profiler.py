@@ -94,7 +94,6 @@ class AndroidUseCase(object):
         except BaseException as error:
             click.secho("Measurement {} has failed".format(self.name), fg='red')
             click.secho(str(error), fg='red')
-            click.secho(error.message, fg='red')
             if retry_limit == 1:
                 # click.secho("Waiting 5 minutes for Monsoon to recover...", fg='red')
                 # time.sleep(5*60)

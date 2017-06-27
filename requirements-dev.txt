@@ -3,4 +3,3 @@ pydocstyle
 pytest-pylint
 pytest-cov
 mock
--e git+https://github.com/dtmilano/AndroidViewClient.git#egg=AndroidViewClient
