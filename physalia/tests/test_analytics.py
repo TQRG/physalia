@@ -1,6 +1,8 @@
 """Test analytics module."""
 
 import unittest
+from tempfile import NamedTemporaryFile
+
 from mock import patch, MagicMock
 
 from physalia.analytics import violinplot
@@ -18,8 +20,10 @@ class TestAnalytics(unittest.TestCase):
         sample_a = create_random_sample(10, 1, use_case='login_fb')
         sample_b = create_random_sample(20, 0.5, use_case='login_twitter')
         sample_c = create_random_sample(15, 3, use_case='login_google+')
-        violinplot(sample_a, sample_b, sample_c,
-                   save_fig="./physalia/tests/tmp/violinplot.png")
+        with NamedTemporaryFile(prefix="violinplot",
+                                suffix='.png', delete=False) as tmp_file:
+            violinplot(sample_a, sample_b, sample_c,
+                       save_fig=tmp_file)
 
     def test_hypothesis_test(self):
         sample_a, sample_b = create_random_samples()

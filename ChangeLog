@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* pylint ignore venv3
+* moved some analytics functions away from the Measurement class
 * python3 compatible; added violinplots
 * fixed merge conflict
 * fixed merge conflict
