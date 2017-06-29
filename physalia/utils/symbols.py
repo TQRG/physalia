@@ -54,4 +54,6 @@ GREEK_ALPHABET = {
     'neq':      u'≠',
     'H0':       u'H₀',
     'H1':       u'H₁',
+    'exists':   u'\u2203',
+    'elementof':u"\u2208",
 }
