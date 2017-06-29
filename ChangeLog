@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+* addded measurement float converter
+* added some math symbols
+* added venv3 to gitignore
+* python3 monsoon compatibility
 * pylint ignore venv3
 * moved some analytics functions away from the Measurement class
 * python3 compatible; added violinplots

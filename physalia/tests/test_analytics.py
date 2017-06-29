@@ -7,7 +7,7 @@ from mock import patch, MagicMock
 
 from physalia.analytics import violinplot
 from physalia.fixtures.models import create_random_sample, create_random_samples
-from physalia.analytics import hypothesis_test, fancy_hypothesis_test
+from physalia.analytics import hypothesis_test, fancy_hypothesis_test, smart_hypothesis_testing
 from physalia.utils.symbols import GREEK_ALPHABET
 
 
@@ -87,4 +87,13 @@ class TestAnalytics(unittest.TestCase):
                     "login with facebook are different.\n"
                 ).substitute(GREEK_ALPHABET)
             )
-    
+
+    def test_smart_hypothesis_testing(self):
+        # pylint: disable=no-self-use
+        sample_a = create_random_sample(10, 1, use_case='login_fb')
+        sample_b = create_random_sample(20, 0.5, use_case='login_twitter')
+        sample_c = create_random_sample(15, 3, use_case='login_google+')
+        smart_hypothesis_testing(
+            sample_a, sample_b, sample_c,
+            fancy="True", alpha=0.05, equal_var=True
+        )
