@@ -90,6 +90,9 @@ class Measurement(object):
                  "Power meter:", self.power_meter,
                  "Phone:", self.device_model)
 
+    def __float__(self):
+        return self.energy_consumption
+
     @classmethod
     def clear_database(cls):
         """Clear database. Deletes CSV data file."""
