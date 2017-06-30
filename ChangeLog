@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* smart hypothesis test
 * addded measurement float converter
 * added some math symbols
 * added venv3 to gitignore

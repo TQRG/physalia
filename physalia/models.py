@@ -90,9 +90,9 @@ class Measurement(object):
                  "Power meter:", self.power_meter,
                  "Phone:", self.device_model)
 
-    # def __float__(self):
-    #     """Convert measurement to float using energy consumption."""
-    #     return self.energy_consumption
+    def __float__(self):
+        """Convert measurement to float using energy consumption."""
+        return self.energy_consumption
 
     @classmethod
     def clear_database(cls):
