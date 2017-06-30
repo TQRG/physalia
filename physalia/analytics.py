@@ -27,12 +27,12 @@ def violinplot(*samples, **options):
     consumptions = [np.array(sample, dtype='float') for sample in samples]
     if names:
         labels = [
-            len(sample) > 0 and names[sample[0].use_case]
+            sample and names[sample[0].use_case]
             for sample in samples
         ]
     else:
         labels = [
-            len(sample) > 0 and sample[0].use_case.title().replace('_', ' ')
+            sample and sample[0].use_case.title().replace('_', ' ')
             for sample in samples
         ]
     stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
@@ -211,14 +211,17 @@ def _flush_output(out, out_buffer, convert_to_latex):
     out_buffer.close()
     if convert_to_latex:
         from pylatexenc.latexencode import utf8tolatex
-        output = "\\documentclass{article}\\begin{document}\\section{Physalia Hypothesis Test}\n" + utf8tolatex(output).replace(
+        output = (
+            "\\documentclass{article}\\begin{document}"
+            "\\section{Physalia Hypothesis Test}\n" + utf8tolatex(output)
+        ).replace(
             GREEK_ALPHABET["H0"], "$H_0$"
         ).replace(
             GREEK_ALPHABET["H1"], "$H_1$"
         ).replace(
             "<", "\\ensuremath{<}"
         ).replace(
-            "\n","\n\n"
+            "\n", "\n\n"
         ).replace(
             "1.", '\\begin{enumerate}\n\\item '
         ).replace(
@@ -226,5 +229,5 @@ def _flush_output(out, out_buffer, convert_to_latex):
         ).replace(
             "3. All populations have equal standard deviation.",
             '\\item All populations have equal standard deviation.\n\\end{enumerate}'
-        ) + "\end{document}"
+        ) + "\\end{document}"
     out.write(output)

@@ -92,6 +92,7 @@ class Measurement(object):
                  "Phone:", self.device_model)
 
     def __repr__(self):
+        """Get representation of the measurement."""
         return (
             "Measurement("
             "use_case={use_case!r}, "
@@ -160,6 +161,7 @@ class Measurement(object):
 
     @classmethod
     def get_entries_with_name_like(cls, name, measurements):
+        """Get all measurements with a similar name to `name`."""
         return (
             measurement for measurement in measurements
             if name in measurement.use_case
@@ -167,6 +169,7 @@ class Measurement(object):
 
     @classmethod
     def get_entries_with_name(cls, name, measurements):
+        """Get all measurements with a given name."""
         return (
             measurement for measurement in measurements
             if name == measurement.use_case

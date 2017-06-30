@@ -39,15 +39,13 @@ class TestMeasurement(unittest.TestCase):
         )
 
     def test_get_unique_use_cases(self):
+        measurements = []
         for _ in range(10):
-            measurement = create_measurement(use_case="one")
-            measurement.persist()
-            measurement = create_measurement(use_case="two")
-            measurement.persist()
-            measurement = create_measurement(use_case="three")
-            measurement.persist()
+            measurements.append(create_measurement(use_case="one"))
+            measurements.append(create_measurement(use_case="two"))
+            measurements.append(create_measurement(use_case="three"))
         self.assertEqual(
-            set(Measurement.get_unique_use_cases()),
+            Measurement.get_unique_use_cases(measurements),
             {"one", "two", "three"}
         )
 
