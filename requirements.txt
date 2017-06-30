@@ -12,3 +12,4 @@ timeout-decorator
 
 #analytics
 matplotlib
+pylatexenc

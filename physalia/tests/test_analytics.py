@@ -93,7 +93,15 @@ class TestAnalytics(unittest.TestCase):
         sample_a = create_random_sample(10, 1, use_case='login_fb')
         sample_b = create_random_sample(20, 0.5, use_case='login_twitter')
         sample_c = create_random_sample(15, 3, use_case='login_google+')
-        smart_hypothesis_testing(
-            sample_a, sample_b, sample_c,
-            fancy="True", alpha=0.05, equal_var=True
-        )
+        with NamedTemporaryFile(
+            prefix="violinplot",
+            suffix='.tex', delete=False
+        ) as tmp_file, open(tmp_file.name, "w") as out:
+            print(tmp_file.name)
+            smart_hypothesis_testing(
+                sample_a, sample_b, sample_c,
+                fancy="True", alpha=0.05, equal_var=True,
+                out=out
+            )
+            import click
+            click.launch(tmp_file.name)

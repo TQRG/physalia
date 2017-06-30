@@ -3,6 +3,10 @@
 import sys
 from string import Template
 from operator import itemgetter
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from statsmodels.graphics.boxplots import violinplot as stats_violinplot
 import matplotlib.pyplot as plt
@@ -18,15 +22,24 @@ from physalia.utils.symbols import GREEK_ALPHABET
 
 def violinplot(*samples, **options):
     """Create violin plot for a set of measurement samples."""
-    consumptions = [
-        [measurement.energy_consumption for measurement in sample]
-        for sample in samples
-    ]
-    labels = [
-        len(sample) > 0 and sample[0].use_case.title().replace('_', ' ')
-        for sample in samples
-    ]
-    stats_violinplot(consumptions, labels=labels)
+    names = options.get("names")
+    title = options.get("title")
+    consumptions = [np.array(sample, dtype='float') for sample in samples]
+    if names:
+        labels = [
+            len(sample) > 0 and names[sample[0].use_case]
+            for sample in samples
+        ]
+    else:
+        labels = [
+            len(sample) > 0 and sample[0].use_case.title().replace('_', ' ')
+            for sample in samples
+        ]
+    stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
+    plt.gcf().subplots_adjust(bottom=0.3)
+
+    if title:
+        plt.title(title)
     if options.get('save_fig'):
         plt.savefig(options.get('save_fig'))
     if options.get('show_fig'):
@@ -129,27 +142,25 @@ def fancy_hypothesis_test(sample_a, sample_b,
                   "".format(name_a=name_a, name_b=name_b))
     return (test, pvalue)
 
-def _pvalue_to_str(pvalue):
-    pvalue_str = "<0.001" if pvalue < 0.001 else "={:.3f}".format(pvalue)
-    return u"{}{}".format(GREEK_ALPHABET['rho'], pvalue_str)
-
 def smart_hypothesis_testing(*samples, **options):
     """Do a smart hypothesis testing."""
     fancy = options.get('fancy', True)
     out = options.get('out', sys.stdout)
     alpha = options.get('alpha', 0.05)
-    equal_var = options.get('alpha', True)
+    equal_var = options.get('equal_var', True)
+    latex = options.get('latex', True)
 
     samples = [np.array(sample, dtype='float') for sample in samples]
     len_samples = len(samples)
+    out_buffer = StringIO()
 
     normality_results = samples_are_normal(*samples)
     if all(map(itemgetter(0), normality_results)):
         # all our samples are normal
         if equal_var:
             if fancy:
-                out.write(Template(
-                    u"Hypothesis testing:\n"
+                out_buffer.write(Template(
+                    u"Hypothesis testing:\n\n"
                     "\t$H0: ${mu}1 = ${mu}2{ellipsis} = $mu{len_samples}. "
                     "The means for all groups are equal.\n"
                     "\t$H1: $exists a,b $elementof Samples: ${mu}a $neq ${mu}b. "
@@ -164,7 +175,7 @@ def smart_hypothesis_testing(*samples, **options):
                     "For the assumption of normal distribution two tests were "
                     "performed ($alpha={alpha}): Shapiro Wilk's test "
                     "and D'Agostino and Pearson's test.\n"
-                    "None of these tests reject the null hyposthesis with "
+                    "None of these tests reject the null hypothesis with "
                     "significance level of $alpha={alpha}, thus it is assumed that data "
                     "follows a normal distribution.\n\n"
                     "").substitute(GREEK_ALPHABET).format(
@@ -174,7 +185,7 @@ def smart_hypothesis_testing(*samples, **options):
             statistic, pvalue = f_oneway(*samples)
             if fancy:
                 if pvalue < alpha:
-                    out.write(
+                    out_buffer.write(
                         u"One can say that samples come from populations "
                         "with different means, since ANOVA rejects the "
                         "null hypothesis "
@@ -182,10 +193,38 @@ def smart_hypothesis_testing(*samples, **options):
                         "".format(pvalue_str=_pvalue_to_str(pvalue), **locals())
                     )
                 else:
-                    out.write(
+                    out_buffer.write(
                         u"Thus, it was not possible to find evidence that"
                         " the means of populations are different "
                         "(statistic={statistic:.2f},{rho}={pvalue:.2f}).\n"
                         "".format(**locals())
                     )
+            _flush_output(out, out_buffer, latex)
             return statistic, pvalue, f_oneway
+
+def _pvalue_to_str(pvalue):
+    pvalue_str = "<0.001" if pvalue < 0.001 else "={:.3f}".format(pvalue)
+    return u"{}{}".format(GREEK_ALPHABET['rho'], pvalue_str)
+
+def _flush_output(out, out_buffer, convert_to_latex):
+    output = out_buffer.getvalue()
+    out_buffer.close()
+    if convert_to_latex:
+        from pylatexenc.latexencode import utf8tolatex
+        output = "\\documentclass{article}\\begin{document}\\section{Physalia Hypothesis Test}\n" + utf8tolatex(output).replace(
+            GREEK_ALPHABET["H0"], "$H_0$"
+        ).replace(
+            GREEK_ALPHABET["H1"], "$H_1$"
+        ).replace(
+            "<", "\\ensuremath{<}"
+        ).replace(
+            "\n","\n\n"
+        ).replace(
+            "1.", '\\begin{enumerate}\n\\item '
+        ).replace(
+            "2.", '\\item '
+        ).replace(
+            "3. All populations have equal standard deviation.",
+            '\\item All populations have equal standard deviation.\n\\end{enumerate}'
+        ) + "\end{document}"
+    out.write(output)
