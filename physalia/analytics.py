@@ -10,11 +10,15 @@ except ImportError:
 
 from statsmodels.graphics.boxplots import violinplot as stats_violinplot
 import matplotlib.pyplot as plt
+from tabulate import tabulate
+
+
 from scipy.stats import ttest_ind
 from scipy.stats import f_oneway
 # normality tests
 from scipy.stats import normaltest, shapiro
 import numpy as np
+
 
 from physalia.utils.symbols import GREEK_ALPHABET
 
@@ -24,6 +28,8 @@ def violinplot(*samples, **options):
     """Create violin plot for a set of measurement samples."""
     names = options.get("names")
     title = options.get("title")
+    sort = options.get("sort")
+    
     consumptions = [np.array(sample, dtype='float') for sample in samples]
     if names:
         labels = [
@@ -35,8 +41,14 @@ def violinplot(*samples, **options):
             sample and sample[0].use_case.title().replace('_', ' ')
             for sample in samples
         ]
+    
+    if sort:
+        labels, samples = zip(*sorted(zip(labels, samples)))
+
     stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
-    plt.gcf().subplots_adjust(bottom=0.3)
+    plt.gcf().subplots_adjust(bottom=0.35)
+    axes = plt.gca()
+    axes.set_ylim(bottom=0.0)
 
     if title:
         plt.title(title)
@@ -98,6 +110,37 @@ def hypothesis_test(sample_a, sample_b):
         equal_var=False
     )
 
+def _format_test_result(result):
+    statistic, pvalue = result
+    return u"(test={:.2f}, {})".format(statistic, _pvalue_to_str(pvalue))
+
+def pairwise_welchs_ttest(*samples, **options):
+    sort = options.get("sort")
+    table_fmt = options.get("table_fmt", "grid")
+    out = options.get("out", sys.stdout)
+    
+    labels = [
+        sample and sample[0].use_case.title().replace('_', ' ')
+        for sample in samples
+    ]
+    if sort:
+        labels, samples = zip(*sorted(zip(labels, samples)))
+    
+    zamples = list(samples)
+    samples = [np.array(sample, dtype='float') for sample in samples]
+    len_samples = len(samples)
+    table = list()
+    for index, sample_one in enumerate(samples):
+        row = list()
+        for sample_two in samples[:index]:
+            row.append(_format_test_result(ttest_ind(
+                sample_one, sample_two,
+                equal_var=False
+            )))
+        row.extend(["--"]*(len_samples-index))
+        table.append(row)
+    out.write(tabulate(table, headers=labels, showindex=labels, tablefmt=table_fmt))
+    out.write("\n")
 
 def fancy_hypothesis_test(sample_a, sample_b,
                           name_a, name_b, out=sys.stdout):
@@ -204,7 +247,7 @@ def smart_hypothesis_testing(*samples, **options):
 
 def _pvalue_to_str(pvalue):
     pvalue_str = "<0.001" if pvalue < 0.001 else "={:.3f}".format(pvalue)
-    return u"{}{}".format(GREEK_ALPHABET['rho'], pvalue_str)
+    return u"{}{}".format('p', pvalue_str)
 
 def _flush_output(out, out_buffer, convert_to_latex):
     output = out_buffer.getvalue()
