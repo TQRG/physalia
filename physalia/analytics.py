@@ -3,6 +3,7 @@
 import sys
 from string import Template
 from operator import itemgetter
+from collections import OrderedDict
 try:
     from StringIO import StringIO
 except ImportError:
@@ -26,14 +27,14 @@ from physalia.utils.symbols import GREEK_ALPHABET
 
 def violinplot(*samples, **options):
     """Create violin plot for a set of measurement samples."""
-    names = options.get("names")
+    names_dict = options.get("names_dict")
     title = options.get("title")
     sort = options.get("sort")
     
     consumptions = [np.array(sample, dtype='float') for sample in samples]
-    if names:
+    if names_dict:
         labels = [
-            sample and names[sample[0].use_case]
+            sample and names_dict[sample[0].use_case]
             for sample in samples
         ]
     else:
@@ -56,13 +57,6 @@ def violinplot(*samples, **options):
         plt.savefig(options.get('save_fig'))
     if options.get('show_fig'):
         plt.show()
-
-
-def samples_are_different(*samples, **options):
-    """Test whether samples come from the same population."""
-    alpha = options.get('alpha', 0.05)
-    statistic, pvalue = f_oneway(samples)
-    return (pvalue < alpha), statistic, pvalue
 
 
 def samples_are_normal(*samples, **options):
@@ -115,16 +109,19 @@ def _format_test_result(result):
     return u"(test={:.2f}, {})".format(statistic, _pvalue_to_str(pvalue))
 
 def pairwise_welchs_ttest(*samples, **options):
+    names = options.get("names")
     sort = options.get("sort")
     table_fmt = options.get("table_fmt", "grid")
     out = options.get("out", sys.stdout)
     
-    labels = [
-        sample and sample[0].use_case.title().replace('_', ' ')
-        for sample in samples
-    ]
+    if not names:
+        names = [
+            sample and sample[0].use_case.title().replace('_', ' ')
+            for sample in samples
+        ]
+
     if sort:
-        labels, samples = zip(*sorted(zip(labels, samples)))
+        names, samples = zip(*sorted(zip(names, samples)))
     
     zamples = list(samples)
     samples = [np.array(sample, dtype='float') for sample in samples]
@@ -139,7 +136,7 @@ def pairwise_welchs_ttest(*samples, **options):
             )))
         row.extend(["--"]*(len_samples-index))
         table.append(row)
-    out.write(tabulate(table, headers=labels, showindex=labels, tablefmt=table_fmt))
+    out.write(tabulate(table, headers=names, showindex=names, tablefmt=table_fmt))
     out.write("\n")
 
 def fancy_hypothesis_test(sample_a, sample_b,
@@ -274,3 +271,35 @@ def _flush_output(out, out_buffer, convert_to_latex):
             '\\item All populations have equal standard deviation.\n\\end{enumerate}'
         ) + "\\end{document}"
     out.write(output)
+
+def describe(*samples, **options):
+    """Create table with statistic summary of samples."""
+    loop_count = options.get("loop_count")
+    names = options.get("names")
+    out = options.get('out', sys.stdout)
+    table_fmt = options.get("table_fmt", "grid")
+    show_ranking = options.get("ranking")
+
+    consumption_samples = [np.array(sample, dtype='float') for sample in samples]
+    samples_means = np.array([np.mean(sample) for sample in consumption_samples])
+    if show_ranking:
+        order = samples_means.argsort()
+        ranking = order.argsort()
+
+    table = list()
+    for index, sample in enumerate(consumption_samples):
+        mean = np.mean(sample)
+        row = OrderedDict((
+            ("N",    len(sample)),
+            ("Avg (J)",  mean),
+            ("Std",  np.std(sample)),
+        ))
+        if loop_count:
+            row["Loop Count"] = loop_count
+            row["Unit. Consumption (J)"] = mean/loop_count
+        if show_ranking:
+            row["Ranking"] = ranking[index]+1
+        table.append(row)
+    out.write(tabulate(table, headers='keys', tablefmt=table_fmt, showindex=names))
+    out.write("\n")
+    return table
