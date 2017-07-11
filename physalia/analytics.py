@@ -2,9 +2,24 @@
 
 import sys
 from string import Template
+from operator import itemgetter
+from collections import OrderedDict
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 from statsmodels.graphics.boxplots import violinplot as stats_violinplot
 import matplotlib.pyplot as plt
+from tabulate import tabulate
+
+
 from scipy.stats import ttest_ind
+from scipy.stats import f_oneway
+# normality tests
+from scipy.stats import normaltest, shapiro
+import numpy as np
+
 
 from physalia.utils.symbols import GREEK_ALPHABET
 
@@ -12,19 +27,61 @@ from physalia.utils.symbols import GREEK_ALPHABET
 
 def violinplot(*samples, **options):
     """Create violin plot for a set of measurement samples."""
-    consumptions = [
-        [measurement.energy_consumption for measurement in sample]
-        for sample in samples
-    ]
-    labels = [
-        len(sample) > 0 and sample[0].use_case.title().replace('_', ' ')
-        for sample in samples
-    ]
-    stats_violinplot(consumptions, labels=labels)
+    names_dict = options.get("names_dict")
+    title = options.get("title")
+    sort = options.get("sort")
+    
+    consumptions = [np.array(sample, dtype='float') for sample in samples]
+    if names_dict:
+        labels = [
+            sample and names_dict[sample[0].use_case]
+            for sample in samples
+        ]
+    else:
+        labels = [
+            sample and sample[0].use_case.title().replace('_', ' ')
+            for sample in samples
+        ]
+    
+    if sort:
+        labels, samples = zip(*sorted(zip(labels, samples)))
+
+    stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
+    plt.gcf().subplots_adjust(bottom=0.35)
+    axes = plt.gca()
+    axes.set_ylim(bottom=0.0)
+
+    if title:
+        plt.title(title)
     if options.get('save_fig'):
         plt.savefig(options.get('save_fig'))
     if options.get('show_fig'):
         plt.show()
+
+
+def samples_are_normal(*samples, **options):
+    """Test whether each sample differs from a normal distribution.
+
+    Use both Shapiro-Wilk test and D'Agostino and Pearson's test
+    to test the null hypothesis that the sample is drawn from a
+    normal distribution.
+
+    Returns:
+        List of tuples (is_normal(bool),(statistic(float),pvalue(float)).
+
+    """
+    alpha = options.get('alpha', 0.05)
+    results = []
+    for sample in samples:
+        (_, shapiro_pvalue) = shapiro_result = shapiro(sample)
+        (_, normaltest_pvalue) = normaltest_result = normaltest(sample)
+        results.append((
+            not (normaltest_pvalue < alpha and shapiro_pvalue < alpha),
+            shapiro_result,
+            normaltest_result
+        ))
+    return results
+
 
 def hypothesis_test(sample_a, sample_b):
     """Perform hypothesis test over two samples of measurements.
@@ -46,6 +103,41 @@ def hypothesis_test(sample_a, sample_b):
         [measurement.energy_consumption for measurement in sample_b],
         equal_var=False
     )
+
+def _format_test_result(result):
+    statistic, pvalue = result
+    return u"(test={:.2f}, {})".format(statistic, _pvalue_to_str(pvalue))
+
+def pairwise_welchs_ttest(*samples, **options):
+    names = options.get("names")
+    sort = options.get("sort")
+    table_fmt = options.get("table_fmt", "grid")
+    out = options.get("out", sys.stdout)
+    
+    if not names:
+        names = [
+            sample and sample[0].use_case.title().replace('_', ' ')
+            for sample in samples
+        ]
+
+    if sort:
+        names, samples = zip(*sorted(zip(names, samples)))
+    
+    zamples = list(samples)
+    samples = [np.array(sample, dtype='float') for sample in samples]
+    len_samples = len(samples)
+    table = list()
+    for index, sample_one in enumerate(samples):
+        row = list()
+        for sample_two in samples[:index]:
+            row.append(_format_test_result(ttest_ind(
+                sample_one, sample_two,
+                equal_var=False
+            )))
+        row.extend(["--"]*(len_samples-index))
+        table.append(row)
+    out.write(tabulate(table, headers=names, showindex=names, tablefmt=table_fmt))
+    out.write("\n")
 
 def fancy_hypothesis_test(sample_a, sample_b,
                           name_a, name_b, out=sys.stdout):
@@ -71,12 +163,13 @@ def fancy_hypothesis_test(sample_a, sample_b,
         ).substitute(GREEK_ALPHABET).format(name_a=name_a,
                                             name_b=name_b)
     )
-    out.write(u"Applying Welch's t-test with {alpha_letter}=0.05, the null"
-              u" hypothesis is{negate} rejected (p-value={pvalue}).\n".format(
-                  negate=" not" if rejected_null_h else "",
-                  pvalue="<0.001" if pvalue < 0.001 else "{:.3f}".format(pvalue),
-                  alpha_letter=GREEK_ALPHABET['alpha']
-              ))
+    out.write(
+        u"Applying Welch's t-test with {alpha_letter}=0.05, the null"
+        u" hypothesis is{negate} rejected (p-value={pvalue}).\n".format(
+            negate=" not" if rejected_null_h else "",
+            pvalue="<0.001" if pvalue < 0.001 else "{:.3f}".format(pvalue),
+            alpha_letter=GREEK_ALPHABET['alpha']
+        ))
 
     if rejected_null_h:
         out.write("Thus, it was not possible to find evidence that"
@@ -88,3 +181,125 @@ def fancy_hypothesis_test(sample_a, sample_b,
                   " \"{name_a}\" and \"{name_b}\" are different.\n"
                   "".format(name_a=name_a, name_b=name_b))
     return (test, pvalue)
+
+def smart_hypothesis_testing(*samples, **options):
+    """Do a smart hypothesis testing."""
+    fancy = options.get('fancy', True)
+    out = options.get('out', sys.stdout)
+    alpha = options.get('alpha', 0.05)
+    equal_var = options.get('equal_var', True)
+    latex = options.get('latex', True)
+
+    samples = [np.array(sample, dtype='float') for sample in samples]
+    len_samples = len(samples)
+    out_buffer = StringIO()
+
+    normality_results = samples_are_normal(*samples)
+    if all(map(itemgetter(0), normality_results)):
+        # all our samples are normal
+        if equal_var:
+            if fancy:
+                out_buffer.write(Template(
+                    u"Hypothesis testing:\n\n"
+                    "\t$H0: ${mu}1 = ${mu}2{ellipsis} = $mu{len_samples}. "
+                    "The means for all groups are equal.\n"
+                    "\t$H1: $exists a,b $elementof Samples: ${mu}a $neq ${mu}b. "
+                    "At least two of the means are not equal.\n\n"
+                    "The significance test one-way analysis of variance (ANOVA) "
+                    "was used with a significance level of $alpha={alpha:.2f}.\n"
+                    "This test requires that the following "
+                    "assumptions are satisfied:\n\n"
+                    "1. Samples are independent.\n"
+                    "2. Samples are drawn from a normally distributed population.\n"
+                    "3. All populations have equal standard deviation.\n\n"
+                    "For the assumption of normal distribution two tests were "
+                    "performed ($alpha={alpha}): Shapiro Wilk's test "
+                    "and D'Agostino and Pearson's test.\n"
+                    "None of these tests reject the null hypothesis with "
+                    "significance level of $alpha={alpha}, thus it is assumed that data "
+                    "follows a normal distribution.\n\n"
+                    "").substitute(GREEK_ALPHABET).format(
+                        ellipsis=" = ..." if len_samples > 3 else "",
+                        **locals()
+                    ))
+            statistic, pvalue = f_oneway(*samples)
+            if fancy:
+                if pvalue < alpha:
+                    out_buffer.write(
+                        u"One can say that samples come from populations "
+                        "with different means, since ANOVA rejects the "
+                        "null hypothesis "
+                        "(statistic={statistic:.2f}, {pvalue_str}).\n"
+                        "".format(pvalue_str=_pvalue_to_str(pvalue), **locals())
+                    )
+                else:
+                    out_buffer.write(
+                        u"Thus, it was not possible to find evidence that"
+                        " the means of populations are different "
+                        "(statistic={statistic:.2f},{rho}={pvalue:.2f}).\n"
+                        "".format(**locals())
+                    )
+            _flush_output(out, out_buffer, latex)
+            return statistic, pvalue, f_oneway
+
+def _pvalue_to_str(pvalue):
+    pvalue_str = "<0.001" if pvalue < 0.001 else "={:.3f}".format(pvalue)
+    return u"{}{}".format('p', pvalue_str)
+
+def _flush_output(out, out_buffer, convert_to_latex):
+    output = out_buffer.getvalue()
+    out_buffer.close()
+    if convert_to_latex:
+        from pylatexenc.latexencode import utf8tolatex
+        output = (
+            "\\documentclass{article}\\begin{document}"
+            "\\section{Physalia Hypothesis Test}\n" + utf8tolatex(output)
+        ).replace(
+            GREEK_ALPHABET["H0"], "$H_0$"
+        ).replace(
+            GREEK_ALPHABET["H1"], "$H_1$"
+        ).replace(
+            "<", "\\ensuremath{<}"
+        ).replace(
+            "\n", "\n\n"
+        ).replace(
+            "1.", '\\begin{enumerate}\n\\item '
+        ).replace(
+            "2.", '\\item '
+        ).replace(
+            "3. All populations have equal standard deviation.",
+            '\\item All populations have equal standard deviation.\n\\end{enumerate}'
+        ) + "\\end{document}"
+    out.write(output)
+
+def describe(*samples, **options):
+    """Create table with statistic summary of samples."""
+    loop_count = options.get("loop_count")
+    names = options.get("names")
+    out = options.get('out', sys.stdout)
+    table_fmt = options.get("table_fmt", "grid")
+    show_ranking = options.get("ranking")
+
+    consumption_samples = [np.array(sample, dtype='float') for sample in samples]
+    samples_means = np.array([np.mean(sample) for sample in consumption_samples])
+    if show_ranking:
+        order = samples_means.argsort()
+        ranking = order.argsort()
+
+    table = list()
+    for index, sample in enumerate(consumption_samples):
+        mean = np.mean(sample)
+        row = OrderedDict((
+            ("N",    len(sample)),
+            ("Avg (J)",  mean),
+            ("Std",  np.std(sample)),
+        ))
+        if loop_count:
+            row["Loop Count"] = loop_count
+            row["Unit. Consumption (J)"] = mean/loop_count
+        if show_ranking:
+            row["Ranking"] = ranking[index]+1
+        table.append(row)
+    out.write(tabulate(table, headers='keys', tablefmt=table_fmt, showindex=names))
+    out.write("\n")
+    return table

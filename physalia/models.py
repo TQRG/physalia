@@ -31,6 +31,7 @@ class Measurement(object):
     csv_storage = "./db.csv"
     COLUMN_APP_PKG = 2
     COLUMN_USE_CASE = 1
+    COLUMN_NAME = COLUMN_USE_CASE
 
     def __init__(
             self,
@@ -90,6 +91,22 @@ class Measurement(object):
                  "Power meter:", self.power_meter,
                  "Phone:", self.device_model)
 
+    def __repr__(self):
+        """Get representation of the measurement."""
+        return (
+            "Measurement("
+            "use_case={use_case!r}, "
+            "energy_consumption={energy_consumption!r}, "
+            "duration={duration!r}, "
+            "power_meter={power_meter!r}, "
+            "device_model={device_model!r}"
+            ")".format(**self.__dict__)
+        )
+
+    def __float__(self):
+        """Convert measurement to float using energy consumption."""
+        return self.energy_consumption
+
     @classmethod
     def clear_database(cls):
         """Clear database. Deletes CSV data file."""
@@ -116,14 +133,17 @@ class Measurement(object):
         return cls._get_unique_from_column(cls.COLUMN_APP_PKG)
 
     @classmethod
-    def get_unique_use_cases(cls):
+    def get_unique_use_cases(cls, measurements):
         """Get all unique use cases.
 
         Returns:
             List of unique use cases.
 
         """
-        return cls._get_unique_from_column(cls.COLUMN_USE_CASE)
+        return {
+            measurement.use_case
+            for measurement in measurements
+        }
 
     @classmethod
     def get_all_entries_of_app(cls, app, use_case):
@@ -140,6 +160,22 @@ class Measurement(object):
             ]
 
     @classmethod
+    def get_entries_with_name_like(cls, name, measurements):
+        """Get all measurements with a similar name to `name`."""
+        return (
+            measurement for measurement in measurements
+            if name in measurement.use_case
+        )
+
+    @classmethod
+    def get_entries_with_name(cls, name, measurements):
+        """Get all measurements with a given name."""
+        return (
+            measurement for measurement in measurements
+            if name == measurement.use_case
+        )
+
+    @classmethod # deleteme
     def mean_energy_consumption(cls, measurements):
         """Get mean energy consumption from a set of measurements."""
         len_measurements = len(measurements)

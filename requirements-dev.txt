@@ -1,5 +1,5 @@
 flake8
 pydocstyle
-pytest-pylint
+pytest-pylint>=0.7.1
 pytest-cov
 mock

@@ -1,6 +1,16 @@
 CHANGES
 =======
 
+* added latex reports;added a few methods for measurement collections
+* added float conversion back to MEasurement
+* supporting python3.6 is now mandatory
+* smart hypothesis test
+* addded measurement float converter
+* added some math symbols
+* added venv3 to gitignore
+* python3 monsoon compatibility
+* pylint ignore venv3
+* moved some analytics functions away from the Measurement class
 * python3 compatible; added violinplots
 * fixed merge conflict
 * fixed merge conflict

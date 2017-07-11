@@ -1,11 +1,13 @@
 """Test analytics module."""
 
 import unittest
+from tempfile import NamedTemporaryFile
+
 from mock import patch, MagicMock
 
 from physalia.analytics import violinplot
 from physalia.fixtures.models import create_random_sample, create_random_samples
-from physalia.analytics import hypothesis_test, fancy_hypothesis_test
+from physalia.analytics import hypothesis_test, fancy_hypothesis_test, smart_hypothesis_testing
 from physalia.utils.symbols import GREEK_ALPHABET
 
 
@@ -18,8 +20,10 @@ class TestAnalytics(unittest.TestCase):
         sample_a = create_random_sample(10, 1, use_case='login_fb')
         sample_b = create_random_sample(20, 0.5, use_case='login_twitter')
         sample_c = create_random_sample(15, 3, use_case='login_google+')
-        violinplot(sample_a, sample_b, sample_c,
-                   save_fig="./physalia/tests/tmp/violinplot.png")
+        with NamedTemporaryFile(prefix="violinplot",
+                                suffix='.png', delete=False) as tmp_file:
+            violinplot(sample_a, sample_b, sample_c,
+                       save_fig=tmp_file)
 
     def test_hypothesis_test(self):
         sample_a, sample_b = create_random_samples()
@@ -83,4 +87,21 @@ class TestAnalytics(unittest.TestCase):
                     "login with facebook are different.\n"
                 ).substitute(GREEK_ALPHABET)
             )
-    
+
+    def test_smart_hypothesis_testing(self):
+        # pylint: disable=no-self-use
+        sample_a = create_random_sample(10, 1, use_case='login_fb')
+        sample_b = create_random_sample(20, 0.5, use_case='login_twitter')
+        sample_c = create_random_sample(15, 3, use_case='login_google+')
+        with NamedTemporaryFile(
+            prefix="violinplot",
+            suffix='.tex', delete=False
+        ) as tmp_file, open(tmp_file.name, "w") as out:
+            print(tmp_file.name)
+            smart_hypothesis_testing(
+                sample_a, sample_b, sample_c,
+                fancy="True", alpha=0.05, equal_var=True,
+                out=out
+            )
+            import click
+            click.launch(tmp_file.name)
