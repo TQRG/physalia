@@ -299,7 +299,7 @@ def describe(*samples, **options):
         mean = np.mean(sample)
         row = OrderedDict((
             ("N",    len(sample)),
-            ("$\\bar{x}$ ({})".format(unit),  mean),
+            ("$\\bar{{x}}$ ({})".format(unit),  mean),
             ("$s$",  np.std(sample)),
         ))
         if loop_count:
@@ -308,8 +308,6 @@ def describe(*samples, **options):
         if show_ranking:
             row["Rank"] = int(ranking[index]+1)
             if row["Rank"] == 1 and table_fmt=='latex':
-                print names
-                print index
                 names[index] = "\\textbf{"+names[index]+"}"
         table.append(row)
     old_escape_rules = T.LATEX_ESCAPE_RULES
