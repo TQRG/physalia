@@ -12,7 +12,7 @@ except ImportError:
 from statsmodels.graphics.boxplots import violinplot as stats_violinplot
 import matplotlib.pyplot as plt
 from tabulate import tabulate
-
+import tabulate as T
 
 from scipy.stats import ttest_ind
 from scipy.stats import f_oneway
@@ -47,7 +47,7 @@ def violinplot(*samples, **options):
         labels, samples = zip(*sorted(zip(labels, samples)))
 
     stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
-    plt.gcf().subplots_adjust(bottom=0.35)
+    plt.gcf().subplots_adjust(bottom=0.3, left=0.1, right=0.999, top=0.99)
     axes = plt.gca()
     axes.set_ylim(bottom=0.0)
 
@@ -275,9 +275,10 @@ def _flush_output(out, out_buffer, convert_to_latex):
 def describe(*samples, **options):
     """Create table with statistic summary of samples."""
     loop_count = options.get("loop_count")
-    names = options.get("names")
+    names = list(options.get("names"))
     out = options.get('out', sys.stdout)
     table_fmt = options.get("table_fmt", "grid")
+    float_fmt = options.get("float_fmt", "")
     show_ranking = options.get("ranking")
 
     consumption_samples = [np.array(sample, dtype='float') for sample in samples]
@@ -292,14 +293,19 @@ def describe(*samples, **options):
         row = OrderedDict((
             ("N",    len(sample)),
             ("Avg (J)",  mean),
-            ("Std",  np.std(sample)),
+            ("$s$",  np.std(sample)),
         ))
         if loop_count:
-            row["Loop Count"] = loop_count
-            row["Unit. Consumption (J)"] = mean/loop_count
+            #row["Iter."] = loop_count
+            row["Single (mJ)"] = mean/loop_count*1000
         if show_ranking:
-            row["Ranking"] = ranking[index]+1
+            row["Rank"] = int(ranking[index]+1)
+            if row["Rank"] == 1 and table_fmt=='latex':
+                names[index] = "\\textbf{"+names[index]+"}"
         table.append(row)
-    out.write(tabulate(table, headers='keys', tablefmt=table_fmt, showindex=names))
+    old_escape_rules = T.LATEX_ESCAPE_RULES
+    T.LATEX_ESCAPE_RULES = {}
+    out.write(T.tabulate(table, headers='keys', tablefmt=table_fmt, floatfmt=float_fmt, showindex=names))
+    T.LATEX_ESCAPE_RULES = old_escape_rules
     out.write("\n")
     return table
