@@ -280,8 +280,15 @@ def describe(*samples, **options):
     table_fmt = options.get("table_fmt", "grid")
     float_fmt = options.get("float_fmt", "")
     show_ranking = options.get("ranking")
+    mili_joules = options.get("mili_joules")
 
     consumption_samples = [np.array(sample, dtype='float') for sample in samples]
+    if mili_joules:
+        for sample in consumption_samples:
+            sample *= 1000
+        unit= 'mJ'
+    else:    
+        unit = 'J'
     samples_means = np.array([np.mean(sample) for sample in consumption_samples])
     if show_ranking:
         order = samples_means.argsort()
@@ -292,15 +299,17 @@ def describe(*samples, **options):
         mean = np.mean(sample)
         row = OrderedDict((
             ("N",    len(sample)),
-            ("Avg (J)",  mean),
+            ("$\\bar{x}$ ({})".format(unit),  mean),
             ("$s$",  np.std(sample)),
         ))
         if loop_count:
             #row["Iter."] = loop_count
-            row["Single (mJ)"] = mean/loop_count*1000
+            row["Single ({})".format(unit)] = mean/loop_count
         if show_ranking:
             row["Rank"] = int(ranking[index]+1)
             if row["Rank"] == 1 and table_fmt=='latex':
+                print names
+                print index
                 names[index] = "\\textbf{"+names[index]+"}"
         table.append(row)
     old_escape_rules = T.LATEX_ESCAPE_RULES
