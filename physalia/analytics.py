@@ -54,11 +54,15 @@ def violinplot(*samples, **options):
     if sort:
         labels, samples = zip(*sorted(zip(labels, samples)))
 
-    stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
+    plot = stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
     plt.gcf().subplots_adjust(bottom=0.3, left=0.1, right=0.999, top=0.99)
     axes = plt.gca()
     axes.set_ylim(bottom=0.0)
     axes.set_ylabel("Energy ({})".format(unit))
+    axes.spines['right'].set_visible(False)
+    axes.spines['left'].set_visible(False)
+    axes.spines['top'].set_visible(False)
+    axes.yaxis.grid(linestyle='dotted')
 
     if title:
         plt.title(title)
