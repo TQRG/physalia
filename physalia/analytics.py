@@ -30,8 +30,16 @@ def violinplot(*samples, **options):
     names_dict = options.get("names_dict")
     title = options.get("title")
     sort = options.get("sort")
-    
+    millijoules = options.get("millijoules")
+
     consumptions = [np.array(sample, dtype='float') for sample in samples]
+    if millijoules:
+        for sample in consumptions:
+            sample *= 1000
+        unit= 'mJ'
+    else:    
+        unit = 'J'
+
     if names_dict:
         labels = [
             sample and names_dict[sample[0].use_case]
@@ -50,6 +58,7 @@ def violinplot(*samples, **options):
     plt.gcf().subplots_adjust(bottom=0.3, left=0.1, right=0.999, top=0.99)
     axes = plt.gca()
     axes.set_ylim(bottom=0.0)
+    axes.set_ylabel("Energy ({})".format(unit))
 
     if title:
         plt.title(title)
