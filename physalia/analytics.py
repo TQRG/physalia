@@ -62,7 +62,8 @@ def violinplot(*samples, **options):
     axes.spines['right'].set_visible(False)
     axes.spines['left'].set_visible(False)
     axes.spines['top'].set_visible(False)
-    axes.yaxis.grid(linestyle='dotted')
+    axes.yaxis.grid(linestyle='dashed')
+    axes.yaxis.set_ticks_position('none') 
 
     if title:
         plt.title(title)
