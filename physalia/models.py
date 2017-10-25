@@ -2,14 +2,12 @@
 
 import csv
 import os
-import sys
-from string import Template
+
 from itertools import groupby
 from collections import OrderedDict
+from operator import itemgetter
 import bisect
-from scipy.stats import ttest_ind
 import numpy
-from physalia.utils.symbols import GREEK_ALPHABET
 
 class Measurement(object):
     """Energy measurement information.
@@ -33,6 +31,7 @@ class Measurement(object):
     csv_storage = "./db.csv"
     COLUMN_APP_PKG = 2
     COLUMN_USE_CASE = 1
+    COLUMN_NAME = COLUMN_USE_CASE
 
     def __init__(
             self,
@@ -44,15 +43,15 @@ class Measurement(object):
             duration,
             energy_consumption,
             power_meter="NA"
-    ):  # noqa: D102
+    ):  # noqa: D102,D107
         self.persisted = False
-        self.timestamp = timestamp
+        self.timestamp = float(timestamp)
         self.use_case = use_case
         self.app_pkg = app_pkg
         self.app_version = app_version
         self.device_model = device_model
-        self.duration = duration
-        self.energy_consumption = energy_consumption
+        self.duration = float(duration)
+        self.energy_consumption = float(energy_consumption)
         self.power_meter = power_meter
 
     def persist(self):
@@ -92,6 +91,22 @@ class Measurement(object):
                  "Power meter:", self.power_meter,
                  "Phone:", self.device_model)
 
+    def __repr__(self):
+        """Get representation of the measurement."""
+        return (
+            "Measurement("
+            "use_case={use_case!r}, "
+            "energy_consumption={energy_consumption!r}, "
+            "duration={duration!r}, "
+            "power_meter={power_meter!r}, "
+            "device_model={device_model!r}"
+            ")".format(**self.__dict__)
+        )
+
+    def __float__(self):
+        """Convert measurement to float using energy consumption."""
+        return self.energy_consumption
+
     @classmethod
     def clear_database(cls):
         """Clear database. Deletes CSV data file."""
@@ -103,7 +118,7 @@ class Measurement(object):
     @classmethod
     def _get_unique_from_column(cls, column_index):
         """Get unique values of the given column."""
-        with open(cls.csv_storage, 'rb') as csvfile:
+        with open(cls.csv_storage, 'rt') as csvfile:
             csv_reader = csv.reader(csvfile)
             return {row[column_index] for row in csv_reader}
 
@@ -118,14 +133,17 @@ class Measurement(object):
         return cls._get_unique_from_column(cls.COLUMN_APP_PKG)
 
     @classmethod
-    def get_unique_use_cases(cls):
+    def get_unique_use_cases(cls, measurements):
         """Get all unique use cases.
 
         Returns:
             List of unique use cases.
 
         """
-        return cls._get_unique_from_column(cls.COLUMN_USE_CASE)
+        return {
+            measurement.use_case
+            for measurement in measurements
+        }
 
     @classmethod
     def get_all_entries_of_app(cls, app, use_case):
@@ -133,7 +151,7 @@ class Measurement(object):
 
         If the use_case is None, all use_cases are retrieved.
         """
-        with open(cls.csv_storage, 'rb') as csvfile:
+        with open(cls.csv_storage, 'rt') as csvfile:
             csv_reader = csv.reader(csvfile)
             return [
                 Measurement(*row) for row in csv_reader
@@ -142,6 +160,22 @@ class Measurement(object):
             ]
 
     @classmethod
+    def get_entries_with_name_like(cls, name, measurements):
+        """Get all measurements with a similar name to `name`."""
+        return (
+            measurement for measurement in measurements
+            if name in measurement.use_case
+        )
+
+    @classmethod
+    def get_entries_with_name(cls, name, measurements):
+        """Get all measurements with a given name."""
+        return (
+            measurement for measurement in measurements
+            if name == measurement.use_case
+        )
+
+    @classmethod # deleteme
     def mean_energy_consumption(cls, measurements):
         """Get mean energy consumption from a set of measurements."""
         len_measurements = len(measurements)
@@ -207,70 +241,6 @@ class Measurement(object):
         measurements = cls.get_all_entries_of_app(app, use_case)
         return cls.describe(measurements)
 
-    @classmethod
-    def hypothesis_test(cls, sample_a, sample_b):
-        """Perform hypothesis test over two samples of measurements.
-
-        Uses Welch's t-test to check whether energy consumption
-        is different in the populations of samples a and b.
-
-        Args:
-            sample_a (list of Measurement): measurements of sample a
-            sample_b (list of Measurement): measurements of sample b
-
-        Returns:
-            t (float): The calculated t-statistic
-            prob (float): The two-tailed p-value
-
-        """
-        return ttest_ind(
-            [measurement.energy_consumption for measurement in sample_a],
-            [measurement.energy_consumption for measurement in sample_b],
-            equal_var=False
-        )
-
-    @classmethod
-    def fancy_hypothesis_test(cls, sample_a, sample_b,
-                              name_a, name_b, out=sys.stdout):
-        """Perform and describe hypothesis testing of 2 samples.
-
-        Args:
-            sample_a (list of Measurement): measurements of sample a
-            sample_b (list of Measurement): measurements of sample b
-            sample_a (String): population name of sample a
-            sample_b (String): population name of sample b
-            out (file): data stream for output
-
-        """
-        alpha = 0.05
-        _, pvalue = cls.hypothesis_test(sample_a, sample_b)
-        rejected_null_h = alpha <= pvalue
-        out.write(
-            Template(
-                "Hypothesis testing:\n"
-                "\t$H0: $mu {name_a} = $mu {name_b}.\n"
-                "\t$H1: $mu {name_a} $neq $mu {name_b}.\n"
-                "\n"
-            ).substitute(GREEK_ALPHABET).format(name_a=name_a,
-                                                name_b=name_b)
-        )
-        out.write(u"Applying Welch's t-test with {alpha_letter}=0.05, the null"
-                  " hypothesis is{negate} rejected (p-value={pvalue}).\n".format(
-                      negate=" not" if rejected_null_h else "",
-                      pvalue="<0.001" if pvalue < 0.001 else "{:.3f}".format(pvalue),
-                      alpha_letter=GREEK_ALPHABET['alpha']
-                  ))
-
-        if rejected_null_h:
-            out.write("Thus, it was not possible to find evidence that"
-                      " the means of populations {name_a} and {name_b}"
-                      " are different.\n".format(name_a=name_a,
-                                                 name_b=name_b))
-        else:
-            out.write("Thus, one can say that the means of populations"
-                      " \"{name_a}\" and \"{name_b}\" are different.\n"
-                      "".format(name_a=name_a, name_b=name_b))
-        return cls.hypothesis_test(sample_a, sample_b)
 
     @classmethod
     def get_energy_ranking(cls):
@@ -282,7 +252,7 @@ class Measurement(object):
             OrderedDict with key=app_pkg and value=energy_consumption
 
         """
-        with open(cls.csv_storage, 'rb') as csvfile:
+        with open(cls.csv_storage, 'rt') as csvfile:
             csv_reader = csv.reader(csvfile)
 
             data = [Measurement(*row) for row in csv_reader]
@@ -295,8 +265,8 @@ class Measurement(object):
                 )
             }
             sorted_data = OrderedDict(sorted(
-                grouped_data.items(),
-                key=lambda (key, energy_consumption): energy_consumption
+                list(grouped_data.items()),
+                key=itemgetter(1)
             ))
             return sorted_data
 
@@ -304,7 +274,7 @@ class Measurement(object):
     def get_position_in_ranking(cls, measurements):
         """Get the position in ranking of a given sample of measurements."""
         energy_ranking = cls.get_energy_ranking()
-        consumptions = energy_ranking.values()
+        consumptions = list(energy_ranking.values())
         energy_consumption = cls.mean_energy_consumption(measurements)
         return (
             bisect.bisect_left(consumptions, energy_consumption)+1,

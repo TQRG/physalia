@@ -4,6 +4,7 @@ This is based on the original code by Google, which is
 licensed under the Apache License, Version 2.0 .
 """
 
+from __future__ import print_function
 import sys
 import time
 from threading import Event, Thread
@@ -142,7 +143,7 @@ class MonsoonReader(Thread):
                 emitted += 1  # adjust for emitting 1 output sample
                 collected = collected[need:]
         except Exception as error:
-            print error
+            print(error)
         try:
             self.data = MonsoonData(
                 current_values,
@@ -152,6 +153,6 @@ class MonsoonReader(Thread):
                 offset=sample_offset
             )
         except Exception as error:
-            print error
+            print(error)
             self.data = None
             self.error_flag = True

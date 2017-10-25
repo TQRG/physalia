@@ -13,13 +13,15 @@ from physalia.exceptions import PhysaliaExecutionFailed
 class AndroidUseCase(object):
     """Implementation of an Android use case.
 
-    Attributes:
-        power_meter     power meter to use for measurements
+    Args:
         name            name identifier of the use case
+        app_apk         path of the app apk
         app_pkg         package
+        power_meter     power meter to use for measurements
         app_version     version of the app
+        run             method with Android interaction
         prepare         method to run before interaction
-        interact        method with Android interaction
+        cleanup         method to run after interaction
 
     """
 
@@ -31,7 +33,7 @@ class AndroidUseCase(object):
     default_power_meter = EmulatedPowerMeter()
 
     def __init__(self, name, app_apk, app_pkg, app_version,
-                 run=None, prepare=None, cleanup=None):  # noqa: D102
+                 run=None, prepare=None, cleanup=None):  # noqa: D102,D107
         self.name = name
         self.app_apk = app_apk
         self.app_pkg = app_pkg
@@ -92,9 +94,16 @@ class AndroidUseCase(object):
         except KeyboardInterrupt as error:
             raise error
         except BaseException as error:
-            click.secho(error.message, fg='red')
+            click.secho("Measurement {} has failed".format(self.name), fg='red')
+            click.secho(str(error), fg='red')
+            if retry_limit == 1:
+                # click.secho("Waiting 5 minutes for Monsoon to recover...", fg='red')
+                # time.sleep(5*60)
+                # hack: reinit power_meter
+                power_meter.reinit()
+
             if retry_limit > 0:
-                click.secho("Measurement has failed: retrying...", fg='yellow')
+                click.secho("Retrying...", fg='yellow')
                 return self.run(power_meter, retry_limit-1)
             printstack = getattr(error, "printStackTrace", None)
             if callable(printstack):

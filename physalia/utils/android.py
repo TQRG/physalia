@@ -56,7 +56,8 @@ def is_locked():
     """Check whether device is locked."""
     output = subprocess.check_output(
         "adb shell service call trust 7",
-        shell=True
+        shell=True,
+        universal_newlines=True
     )
     match = re.search(r"Parcel\(00000000 00000001", output)
     return match is not None
@@ -94,7 +95,11 @@ def is_android_device_available():
     """Check whether there is at least an available android devices."""
     if not check_adb():
         return False
-    result = subprocess.check_output("adb devices", shell=True)
+    result = subprocess.check_output(
+        "adb devices",
+        shell=True,
+        universal_newlines=True
+    )
     devices = result.partition('\n')[2].replace('\n', '').split('\tdevice')
     devices = [device for device in devices if len(device) > 2]
     if not devices:
@@ -102,7 +107,8 @@ def is_android_device_available():
     try:
         result = subprocess.check_output(
             "adb shell getprop sys.boot_completed",
-            shell=True).strip()
+            shell=True,
+            universal_newlines=True).strip()
         return result == "1"
     except subprocess.CalledProcessError:
         return False
@@ -117,7 +123,8 @@ def get_device_model(serialno=None):
     try:
         return subprocess.check_output(
             command,
-            shell=True
+            shell=True,
+            universal_newlines=True
         ).strip()
     except subprocess.CalledProcessError:
         return "N/A"
@@ -126,7 +133,8 @@ def connect_adb_through_wifi():
     """Configure `adb` through a wifi connection."""
     net_output = subprocess.check_output(
         "adb shell ip -f inet addr show wlan0",
-        shell=True
+        shell=True,
+        universal_newlines=True
     )
     ip_address = re.search(r"inet \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", net_output).group()[5:]
     subprocess.check_output(
