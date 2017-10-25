@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* added landscape config
+* pylint
 * merge
 * pylint
 * improved violin plots

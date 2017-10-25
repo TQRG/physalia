@@ -10,6 +10,7 @@ except ImportError:
     from io import StringIO
 
 from statsmodels.graphics.boxplots import violinplot as stats_violinplot
+import matplotlib
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 import tabulate as T
@@ -23,6 +24,7 @@ import numpy as np
 
 from physalia.utils.symbols import GREEK_ALPHABET
 
+matplotlib.use('Agg')
 
 
 def violinplot(*samples, **options):
