@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* using matplotlib interactive mode to run on travis
 * added landscape config
 * pylint
 * merge

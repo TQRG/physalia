@@ -9,22 +9,23 @@ try:
 except ImportError:
     from io import StringIO
 
-from statsmodels.graphics.boxplots import violinplot as stats_violinplot
-import matplotlib
-import matplotlib.pyplot as plt
+
 from tabulate import tabulate
 import tabulate as T
-
 from scipy.stats import ttest_ind
 from scipy.stats import f_oneway
 # normality tests
 from scipy.stats import normaltest, shapiro
 import numpy as np
 
-
 from physalia.utils.symbols import GREEK_ALPHABET
 
+# pylint: disable=wrong-import-position
+# Matplotlib is a special case
+import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from statsmodels.graphics.boxplots import violinplot as stats_violinplot
 
 
 def violinplot(*samples, **options):
