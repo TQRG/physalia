@@ -1,0 +1,4 @@
+ignore-paths:
+  - physalia/third_party
+python-targets:
+  - 3
