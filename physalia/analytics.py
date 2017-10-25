@@ -30,7 +30,7 @@ def violinplot(*samples, **options):
     names_dict = options.get("names_dict")
     title = options.get("title")
     sort = options.get("sort")
-    
+
     consumptions = [np.array(sample, dtype='float') for sample in samples]
     if names_dict:
         labels = [
@@ -42,7 +42,7 @@ def violinplot(*samples, **options):
             sample and sample[0].use_case.title().replace('_', ' ')
             for sample in samples
         ]
-    
+
     if sort:
         labels, samples = zip(*sorted(zip(labels, samples)))
 
@@ -109,11 +109,12 @@ def _format_test_result(result):
     return u"(test={:.2f}, {})".format(statistic, _pvalue_to_str(pvalue))
 
 def pairwise_welchs_ttest(*samples, **options):
+    """Perform pairwise Welch's t-test."""
     names = options.get("names")
     sort = options.get("sort")
     table_fmt = options.get("table_fmt", "grid")
     out = options.get("out", sys.stdout)
-    
+
     if not names:
         names = [
             sample and sample[0].use_case.title().replace('_', ' ')
@@ -122,8 +123,7 @@ def pairwise_welchs_ttest(*samples, **options):
 
     if sort:
         names, samples = zip(*sorted(zip(names, samples)))
-    
-    zamples = list(samples)
+
     samples = [np.array(sample, dtype='float') for sample in samples]
     len_samples = len(samples)
     table = list()
@@ -273,7 +273,19 @@ def _flush_output(out, out_buffer, convert_to_latex):
     out.write(output)
 
 def describe(*samples, **options):
-    """Create table with statistic summary of samples."""
+    """Create table with statistic summary of samples.
+
+    Args:
+        loop_count
+        names
+        out
+        table_fmt
+        float_fmt
+        show_ranking
+        mili_joules
+    """
+    # pylint: disable=too-many-locals
+
     loop_count = options.get("loop_count")
     names = list(options.get("names"))
     out = options.get('out', sys.stdout)
@@ -286,8 +298,8 @@ def describe(*samples, **options):
     if mili_joules:
         for sample in consumption_samples:
             sample *= 1000
-        unit= 'mJ'
-    else:    
+        unit = 'mJ'
+    else:
         unit = 'J'
     samples_means = np.array([np.mean(sample) for sample in consumption_samples])
     if show_ranking:
@@ -298,21 +310,25 @@ def describe(*samples, **options):
     for index, sample in enumerate(consumption_samples):
         mean = np.mean(sample)
         row = OrderedDict((
-            ("N",    len(sample)),
-            ("$\\bar{{x}}$ ({})".format(unit),  mean),
-            ("$s$",  np.std(sample)),
+            ("N", len(sample)),
+            ("$\\bar{{x}}$ ({})".format(unit), mean),
+            ("$s$", np.std(sample)),
         ))
         if loop_count:
             #row["Iter."] = loop_count
             row["Single ({})".format(unit)] = mean/loop_count
         if show_ranking:
             row["Rank"] = int(ranking[index]+1)
-            if row["Rank"] == 1 and table_fmt=='latex':
+            if row["Rank"] == 1 and table_fmt == 'latex':
                 names[index] = "\\textbf{"+names[index]+"}"
         table.append(row)
     old_escape_rules = T.LATEX_ESCAPE_RULES
     T.LATEX_ESCAPE_RULES = {}
-    out.write(T.tabulate(table, headers='keys', tablefmt=table_fmt, floatfmt=float_fmt, showindex=names))
+    out.write(T.tabulate(
+        table,
+        headers='keys', showindex=names,
+        tablefmt=table_fmt, floatfmt=float_fmt
+    ))
     T.LATEX_ESCAPE_RULES = old_escape_rules
     out.write("\n")
     return table

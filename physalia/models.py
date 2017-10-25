@@ -43,7 +43,7 @@ class Measurement(object):
             duration,
             energy_consumption,
             power_meter="NA"
-    ):  # noqa: D102
+    ):  # noqa: D102,D107
         self.persisted = False
         self.timestamp = float(timestamp)
         self.use_case = use_case

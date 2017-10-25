@@ -13,13 +13,15 @@ from physalia.exceptions import PhysaliaExecutionFailed
 class AndroidUseCase(object):
     """Implementation of an Android use case.
 
-    Attributes:
-        power_meter     power meter to use for measurements
+    Args:
         name            name identifier of the use case
+        app_apk         path of the app apk
         app_pkg         package
+        power_meter     power meter to use for measurements
         app_version     version of the app
+        run             method with Android interaction
         prepare         method to run before interaction
-        interact        method with Android interaction
+        cleanup         method to run after interaction
 
     """
 
@@ -31,7 +33,7 @@ class AndroidUseCase(object):
     default_power_meter = EmulatedPowerMeter()
 
     def __init__(self, name, app_apk, app_pkg, app_version,
-                 run=None, prepare=None, cleanup=None):  # noqa: D102
+                 run=None, prepare=None, cleanup=None):  # noqa: D102,D107
         self.name = name
         self.app_apk = app_apk
         self.app_pkg = app_pkg

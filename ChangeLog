@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+* millijoules option
+* millijoules option
+* adjusmtents in violin plots
+* pairwaise welchs
+* generate welchs ttest pairwise tables
+* code linting, and fixed some tests
 * added latex reports;added a few methods for measurement collections
 * added float conversion back to MEasurement
 * supporting python3.6 is now mandatory
@@ -11,6 +17,8 @@ CHANGES
 * python3 monsoon compatibility
 * pylint ignore venv3
 * moved some analytics functions away from the Measurement class
+* Update README.md
+* Update README.md
 * python3 compatible; added violinplots
 * fixed merge conflict
 * fixed merge conflict

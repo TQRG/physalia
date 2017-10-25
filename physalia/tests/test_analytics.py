@@ -97,11 +97,8 @@ class TestAnalytics(unittest.TestCase):
             prefix="violinplot",
             suffix='.tex', delete=False
         ) as tmp_file, open(tmp_file.name, "w") as out:
-            print(tmp_file.name)
             smart_hypothesis_testing(
                 sample_a, sample_b, sample_c,
                 fancy="True", alpha=0.05, equal_var=True,
                 out=out
             )
-            import click
-            click.launch(tmp_file.name)

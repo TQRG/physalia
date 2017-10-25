@@ -36,7 +36,7 @@ class PowerMeter(object):
 class EmulatedPowerMeter(PowerMeter):
     """PowerMeter implementation to emulate a power monitor."""
 
-    def __init__(self):  # noqa: D102
+    def __init__(self):  # noqa: D102,D107
         self.start_time = None
 
     def start(self):
@@ -65,7 +65,7 @@ class MonsoonPowerMeter(PowerMeter):
     Your server and device have to be connected to the same network.
     """
 
-    def __init__(self, voltage=3.8, serial=12886):  # noqa: D102
+    def __init__(self, voltage=3.8, serial=12886):  # noqa: D102,D107
         self.monsoon = None
         self.monsoon_reader = None
         self.monsoon_data = None
