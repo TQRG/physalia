@@ -5,10 +5,7 @@ statsmodels
 whichcraft
 
 #monsoon
-python-gflags
-pyserial
-mobly
-timeout-decorator
+monsoon
 
 #analytics
 matplotlib
