@@ -36,8 +36,8 @@ def violinplot(*samples, **options):
     if millijoules:
         for sample in consumptions:
             sample *= 1000
-        unit= 'mJ'
-    else:    
+        unit = 'mJ'
+    else:
         unit = 'J'
 
     if names_dict:
@@ -54,7 +54,7 @@ def violinplot(*samples, **options):
     if sort:
         labels, samples = zip(*sorted(zip(labels, samples)))
 
-    plot = stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
+    stats_violinplot(consumptions, labels=labels, plot_opts={'label_rotation': 90})
     plt.gcf().subplots_adjust(bottom=0.3, left=0.1, right=0.999, top=0.99)
     axes = plt.gca()
     axes.set_ylim(bottom=0.0)
@@ -63,7 +63,7 @@ def violinplot(*samples, **options):
     axes.spines['left'].set_visible(False)
     axes.spines['top'].set_visible(False)
     axes.yaxis.grid(linestyle='dashed')
-    axes.yaxis.set_ticks_position('none') 
+    axes.yaxis.set_ticks_position('none')
 
     if title:
         plt.title(title)

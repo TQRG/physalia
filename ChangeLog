@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+* merge
+* pylint
+* improved violin plots
+* improved violinplots graphics
+* millijoules support for violin plots
 * millijoules option
 * millijoules option
 * adjusmtents in violin plots
