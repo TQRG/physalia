@@ -1,59 +1,19 @@
 CHANGES
 =======
 
-* using matplotlib interactive mode to run on travis
-* added landscape config
-* pylint
-* merge
-* pylint
-* improved violin plots
-* improved violinplots graphics
-* millijoules support for violin plots
-* millijoules option
-* millijoules option
-* adjusmtents in violin plots
-* pairwaise welchs
-* generate welchs ttest pairwise tables
-* code linting, and fixed some tests
-* added latex reports;added a few methods for measurement collections
-* added float conversion back to MEasurement
-* supporting python3.6 is now mandatory
-* smart hypothesis test
-* addded measurement float converter
-* added some math symbols
-* added venv3 to gitignore
-* python3 monsoon compatibility
-* pylint ignore venv3
-* moved some analytics functions away from the Measurement class
+* Logic to help generate data reports (#4)
 * Update README.md
 * Update README.md
-* python3 compatible; added violinplots
-* fixed merge conflict
-* fixed merge conflict
-* added a reinit feature to power meters --- to be used in case the power meter starts behaving unexpectedly
-* added simple example
-* conflict
 * changelog
 * Dev (#3)
-* fix merge conflixts
-* lint fixes
-* updated CLI
-* fixed short time measurements; added monsoon utils
-* print trace in error
-* print trace in error
 * Dev (#2)
-* bug in device available timeout
-* clean code
-* added exceptions to physalia
-* android utils: improved android availability function
-* removed hz from monsoon power meter; refining monsoon readings
 * run method more tolerant to failures
 * fixed monsoon timeout errors
 * minor fix
 * minor fix
 * pretty print of measurement
-* fixed small error with energy_profiler tuples
-* added error_flag to executions return tuple
+* fixed small error with energy\_profiler tuples
+* added error\_flag to executions return tuple
 * Choose power meter when running/profiling
 * lint files
 * clean async monsoon
@@ -109,7 +69,7 @@ CHANGES
 * merge conflict
 * changing some settings on tox
 * Working on samples"
-* trying to implement check_adb without testing
+* trying to implement check\_adb without testing
 * integrating tox with travis
 * fixed bug with defininf androidviewclientusecase prepare and cleanup; skip some tests when adb is not available
 * Update .travis.yml
