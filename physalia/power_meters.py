@@ -2,8 +2,13 @@
 
 import abc
 import time
+import warnings
+
 import click
-from physalia.third_party.monsoon import Monsoon
+from Monsoon import Operations as operations
+from Monsoon.sampleEngine import SampleEngine
+from Monsoon import LVPM
+
 from physalia.third_party import monsoon_async
 from physalia.utils import android
 
@@ -65,15 +70,15 @@ class MonsoonPowerMeter(PowerMeter):
     Your server and device have to be connected to the same network.
     """
 
-    def __init__(self, voltage=3.8, serial=12886):  # noqa: D102,D107
+    def __init__(self, voltage=3.8, serial=None):  # noqa: D102,D107
         self.monsoon = None
+        self.serial = serial
+        self.voltage = voltage
         self.monsoon_reader = None
         self.monsoon_data = None
-        self.voltage = None
-        self.serial = None
-        self.sample_hz = 10
+        self.engine = None
+        self.setup_monsoon()
 
-        self.setup_monsoon(voltage, serial)
         click.secho(
             "Monsoon is ready.",
             fg='green'
@@ -110,15 +115,12 @@ class MonsoonPowerMeter(PowerMeter):
 
     def reinit(self):
         """Reinitialize power meter upon unexpected behavior."""
-        click.secho(
-            "Danger: Reinitializing Monsoon connection...",
-            fg='yellow'
+        warnings.warn(
+            "reinit is deprecated and does nothing",
+            DeprecationWarning
         )
-        self.monsoon.mon.ser.close()
-        self.monsoon = Monsoon(serial=self.serial)
 
-
-    def setup_monsoon(self, voltage, serial):
+    def setup_monsoon(self):
         """Set up monsoon.
 
         Args:
@@ -127,19 +129,15 @@ class MonsoonPowerMeter(PowerMeter):
         """
         click.secho(
             "Setting up Monsoon {} with {}V...".format(
-                serial, voltage
+                self.serial, self.voltage
             ),
             fg='blue'
         )
+        self.monsoon = LVPM.Monsoon()
+        self.monsoon.setup_usb(self.serial)
+        self.monsoon.setVout(self.voltage)
+        self.engine = SampleEngine(self.monsoon)
 
-        self.serial = serial
-        self.voltage = voltage
-        self.monsoon = Monsoon(serial=self.serial)
-
-        # pylint: disable=protected-access
-        # this is a HACK
-        self.monsoon.mon._FlushInput() # make sure old failures are gone
-        self.monsoon.set_voltage(self.voltage)
         if android.is_android_device_available():
             android.reconnect_adb_through_usb()
         self.monsoon_usb_enabled(True)
@@ -148,31 +146,33 @@ class MonsoonPowerMeter(PowerMeter):
         """Enable/disable monsoon's usb port."""
         # pylint: disable=too-many-function-args
         # something is conflicting with timeout_decorator
-        self.monsoon.usb(
-            self.monsoon,
-            {True:'on', False:'off'}[enabled]
+        self.monsoon.setUSBPassthroughMode(
+            {
+                True:operations.USB_Passthrough.On,
+                False:operations.USB_Passthrough.Off,
+            }[enabled]
         )
 
     def start(self):
         """Start measuring energy consumption."""
         self.monsoon_reader = monsoon_async.MonsoonReader(
-            self.monsoon,
-            sample_hz=50
+            self.engine,
         )
-        self.monsoon_reader.prepare()
         self.monsoon_reader.start()
 
     def stop(self):
         """Stop measuring."""
         self.monsoon_reader.stop()
-        if self.monsoon_reader.data:
-            data_points = self.monsoon_reader.data.data_points
-            sample_hz = self.monsoon_reader.data.hz
-            energy_consumption = sum(data_points)/sample_hz/1000
-            duration = len(data_points)/sample_hz
+        samples = self.engine.getSamples()
+        if len(samples) == 3:
+            timestamps = samples[0]
+            currents = samples[1]
+            sample_hz = 50000
+            delta_time = 1/sample_hz
+            energy_consumption = sum(currents)*delta_time
+            duration = timestamps[-1]
             return energy_consumption, duration, False
-        # no data => error_flag=True
-        return -1, -1, True
+        return None, None, True
 
     def __str__(self):
         """Return the name of this power meter."""

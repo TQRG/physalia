@@ -1,12 +1,15 @@
 """Module with util functions to use with Monsoon."""
 
 import usb.core
-from  Monsoon.pmapi import USB_protocol
 
-def _device_matcher(d):
-    """Method copied from official Monsoon API"""
+def _device_matcher(device):
+    """Check if device is monsoon.
+
+    Method copied from official Monsoon API.
+    """
+    # pylint: disable=bare-except
     try:
-        return d.idVendor == 0x2AB9 and d.idProduct == 0x0001
+        return device.idVendor == 0x2AB9 and device.idProduct == 0x0001
     except:
         return False
 
