@@ -27,8 +27,6 @@ class MonsoonReader(Thread):
         self.monsoon_engine.startSampling(triggers.SAMPLECOUNT_INFINITE)
 
     def stop(self):
-        """Stop measuring.
-
-        Measurements are stored in `self.data`."""
-        self.monsoon_engine.__stopTriggerSet = True
+        """Stop measuring."""
+        self.monsoon_engine._SampleEngine__stopTriggerSet = True
         self.join()

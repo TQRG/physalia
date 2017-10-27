@@ -11,6 +11,7 @@ from Monsoon import LVPM
 
 from physalia.third_party import monsoon_async
 from physalia.utils import android
+from physalia.utils.monsoon import set_voltage_if_different
 
 
 class PowerMeter(object):
@@ -135,7 +136,7 @@ class MonsoonPowerMeter(PowerMeter):
         )
         self.monsoon = LVPM.Monsoon()
         self.monsoon.setup_usb(self.serial)
-        self.monsoon.setVout(self.voltage)
+        set_voltage_if_different(self.monsoon, self.voltage)
         self.engine = SampleEngine(self.monsoon)
 
         if android.is_android_device_available():
@@ -167,11 +168,12 @@ class MonsoonPowerMeter(PowerMeter):
         if len(samples) == 3:
             timestamps = samples[0]
             currents = samples[1]
-            sample_hz = 50000
-            delta_time = 1/sample_hz
-            energy_consumption = sum(currents)*delta_time
-            duration = timestamps[-1]
-            return energy_consumption, duration, False
+            if timestamps:
+                sample_hz = 50000
+                delta_time = 1/sample_hz
+                energy_consumption = sum(currents)*delta_time
+                duration = timestamps[-1]
+                return energy_consumption, duration, False
         return None, None, True
 
     def __str__(self):

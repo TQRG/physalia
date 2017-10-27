@@ -2,7 +2,9 @@
 
 import subprocess
 import re
+
 from whichcraft import which
+import click
 
 def set_charging_enabled(enabled, serialno=None):
     """Enable or disable charging the device."""
@@ -54,13 +56,17 @@ def is_screen_on():
 
 def is_locked():
     """Check whether device is locked."""
-    output = subprocess.check_output(
-        "adb shell service call trust 7",
-        shell=True,
-        universal_newlines=True
-    )
-    match = re.search(r"Parcel\(00000000 00000001", output)
-    return match is not None
+    try:
+        output = subprocess.check_output(
+            "adb shell service call trust 7",
+            shell=True,
+            universal_newlines=True
+        )
+        match = re.search(r"Parcel\(00000000 00000001", output)
+        return match is not None
+    except subprocess.CalledProcessError as e:
+        click.secho('Warning: {}'.format(e), fg='yellow')
+        return True
 
 def wakeup():
     """Wake up device."""
