@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* test monsoon utils
+* async monsoon: fixed voltage issue
+* using new monsoon library for device lvpm
 * is_monsoon_available for new firmware
 * changelog
 * Logic to help generate data reports (#4)

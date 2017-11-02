@@ -29,6 +29,6 @@ def get_voltage(monsoon):
 def set_voltage_if_different(monsoon, voltage):
     """Set monsoon voltage only if it is different."""
     previous_voltage = get_voltage(monsoon)
-    if isclose(previous_voltage, voltage, abs_tol=0.0001):
+    if not isclose(previous_voltage, voltage, abs_tol=0.0001):
         click.secho('setting voltage {} (previous was {})'.format(voltage, previous_voltage), fg='red')
         monsoon.setVout(voltage)

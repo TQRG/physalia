@@ -42,7 +42,8 @@ class Measurement(object):
             device_model,
             duration,
             energy_consumption,
-            power_meter="NA"
+            power_meter="NA",
+            success=True,
     ):  # noqa: D102,D107
         self.persisted = False
         self.timestamp = float(timestamp)
@@ -53,6 +54,7 @@ class Measurement(object):
         self.duration = float(duration)
         self.energy_consumption = float(energy_consumption)
         self.power_meter = power_meter
+        self.success = success
 
     def persist(self):
         """Store measurement in the database."""
@@ -74,7 +76,8 @@ class Measurement(object):
                 self.device_model,
                 self.duration,
                 self.energy_consumption,
-                self.power_meter
+                self.power_meter,
+                self.success,
             ])
 
     def __str__(self):
@@ -99,7 +102,8 @@ class Measurement(object):
             "energy_consumption={energy_consumption!r}, "
             "duration={duration!r}, "
             "power_meter={power_meter!r}, "
-            "device_model={device_model!r}"
+            "device_model={device_model!r},"
+            "success={success!r}"
             ")".format(**self.__dict__)
         )
 

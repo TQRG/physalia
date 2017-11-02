@@ -38,7 +38,6 @@ class AndroidUseCase(object):
         self.app_apk = app_apk
         self.app_pkg = app_pkg
         self.app_version = app_version
-        self.power_meter = None
         if run:
             self._run = types.MethodType(run, self)
         if prepare:
@@ -76,7 +75,7 @@ class AndroidUseCase(object):
         try:
             self.prepare()
             power_meter.start()
-            self._run()
+            success = self._run()
             energy_consumption, duration, error_flag = power_meter.stop()
             self.cleanup()
             if error_flag:
@@ -89,7 +88,8 @@ class AndroidUseCase(object):
                 android_utils.get_device_model(),
                 duration,
                 energy_consumption,
-                str(power_meter)
+                str(power_meter),
+                success is None or success,
             )
         except KeyboardInterrupt as error:
             raise error

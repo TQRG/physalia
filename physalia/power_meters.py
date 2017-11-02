@@ -138,6 +138,7 @@ class MonsoonPowerMeter(PowerMeter):
         self.monsoon.setup_usb(self.serial)
         set_voltage_if_different(self.monsoon, self.voltage)
         self.engine = SampleEngine(self.monsoon)
+        self.engine.ConsoleOutput(False)
 
         if android.is_android_device_available():
             android.reconnect_adb_through_usb()

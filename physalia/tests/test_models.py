@@ -21,7 +21,7 @@ class TestMeasurement(unittest.TestCase):
         with open(self.TEST_CSV_STORAGE, 'r') as file_desc:
             content = file_desc.read()
         self.assertIn(
-            """1485634263.096069,login,com.package,1.0.0,Nexus 5X,2.0,30.0,NA""",
+            """1485634263.096069,login,com.package,1.0.0,Nexus 5X,2.0,30.0,NA,True""",
             content
         )
 
