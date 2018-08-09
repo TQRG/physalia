@@ -1,10 +1,11 @@
 CHANGES
 =======
 
+* added success flag; fixed set voltage; surpressed console output
 * test monsoon utils
 * async monsoon: fixed voltage issue
 * using new monsoon library for device lvpm
-* is_monsoon_available for new firmware
+* is\_monsoon\_available for new firmware
 * changelog
 * Logic to help generate data reports (#4)
 * Update README.md
@@ -17,8 +18,8 @@ CHANGES
 * minor fix
 * minor fix
 * pretty print of measurement
-* fixed small error with energy_profiler tuples
-* added error_flag to executions return tuple
+* fixed small error with energy\_profiler tuples
+* added error\_flag to executions return tuple
 * Choose power meter when running/profiling
 * lint files
 * clean async monsoon
@@ -74,7 +75,7 @@ CHANGES
 * merge conflict
 * changing some settings on tox
 * Working on samples"
-* trying to implement check_adb without testing
+* trying to implement check\_adb without testing
 * integrating tox with travis
 * fixed bug with defininf androidviewclientusecase prepare and cleanup; skip some tests when adb is not available
 * Update .travis.yml

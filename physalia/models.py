@@ -2,6 +2,7 @@
 
 import csv
 import os
+from pathlib import Path
 
 from itertools import groupby
 from collections import OrderedDict
@@ -44,6 +45,7 @@ class Measurement(object):
             energy_consumption,
             power_meter="NA",
             success=True,
+            notes=None,
     ):  # noqa: D102,D107
         self.persisted = False
         self.timestamp = float(timestamp)
@@ -55,6 +57,7 @@ class Measurement(object):
         self.energy_consumption = float(energy_consumption)
         self.power_meter = power_meter
         self.success = success
+        self.notes = notes
 
     def persist(self):
         """Store measurement in the database."""
@@ -66,7 +69,23 @@ class Measurement(object):
 
     def save_to_csv(self, filename):
         """Store measurements in a CSV file."""
-        with open(filename, 'a') as csvfile:
+        if not Path(filename).is_file():
+            with open(filename, 'wt') as csvfile:
+                csv_writer = csv.writer(csvfile)
+                writer.writeheader()
+                csv_writer.writerow([
+                    "timestamp",
+                    "use_case",
+                    "app_pkg",
+                    "app_version",
+                    "device_model",
+                    "duration",
+                    "energy_consumption",
+                    "power_meter",
+                    "success",
+                    "notes",
+                ])
+        with open(filename, 'at') as csvfile:
             csv_writer = csv.writer(csvfile)
             csv_writer.writerow([
                 self.timestamp,
@@ -78,6 +97,7 @@ class Measurement(object):
                 self.energy_consumption,
                 self.power_meter,
                 self.success,
+                self.notes,
             ])
 
     def __str__(self):

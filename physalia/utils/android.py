@@ -90,8 +90,11 @@ def unlock(pincode):
     )
 
 def install_apk(apk):
-    """Install apk."""
-    subprocess.check_output(["adb", "install", apk])
+    """Install apk.
+    Accepts Downgrade, grants all requestd permissions,
+    and reinstalls if app already exists.
+    """
+    subprocess.check_output(["adb", "install", "-d", "-g", "-r", apk])
 
 def check_adb():
     """Check whether adb is available."""
@@ -161,4 +164,24 @@ def reconnect_adb_through_usb():
         )
     except subprocess.CalledProcessError:
         pass
+
+def get_package_from_apk(apk_path):
+    aapt = "$ANDROID_HOME/build-tools/27.0.0/aapt"
+    result = subprocess.check_output(
+        aapt + " dump badging {} | awk '/package/{{gsub(\"name=|'\"'\"'\",\"\");  print $2}}'".format(apk_path),
+        shell=True
+    )
+    return str(result.strip(), 'utf-8')
+
+def get_instrumentation_for_app(app_pkg, test_pkg=""):
+    pattern = re.compile("instrumentation:(.*) ")
+    output = subprocess.check_output(
+        "adb shell pm list instrumentation | grep -i {}".format(app_pkg),
+        shell=True
+    )
+    if type(output) is bytes:
+        output = output.decode('utf-8')
+    search = pattern.search(output)
+    if search:
+        return search.group(1)
     
