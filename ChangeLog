@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* small improvements
 * added success flag; fixed set voltage; surpressed console output
 * test monsoon utils
 * async monsoon: fixed voltage issue

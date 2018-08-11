@@ -72,7 +72,7 @@ class Measurement(object):
         if not Path(filename).is_file():
             with open(filename, 'wt') as csvfile:
                 csv_writer = csv.writer(csvfile)
-                writer.writeheader()
+                # csv_writer.writeheader()
                 csv_writer.writerow([
                     "timestamp",
                     "use_case",

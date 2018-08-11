@@ -13,6 +13,8 @@ from physalia.third_party import monsoon_async
 from physalia.utils import android
 from physalia.utils.monsoon import set_voltage_if_different
 
+import numpy as np
+
 
 class PowerMeter(object):
     """Abstract class for interaction with a power monitor."""
@@ -172,7 +174,10 @@ class MonsoonPowerMeter(PowerMeter):
             if timestamps:
                 sample_hz = 50000
                 delta_time = 1/sample_hz
-                energy_consumption = sum(currents)*delta_time
+                time_deltas = [j-i for i, j in zip(timestamps[:-1], timestamps[1:])]
+                
+                energy_consumption = sum(np.array(currents[:-1])*np.array(time_deltas))/1000
+                # energy_consumption = sum(currents)*delta_time
                 duration = timestamps[-1]
                 return energy_consumption, duration, False
         return None, None, True
