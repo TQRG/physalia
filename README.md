@@ -14,7 +14,7 @@ More info and documentation in the [website](https://tqrg.github.io/physalia/).
 ## Install
 
 ```
-$ pip install https://github.com/luiscruz/PyMonsoon
+$ pip install git+https://github.com/luiscruz/PyMonsoon
 $ pip install physalia
 ```
 
