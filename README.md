@@ -20,6 +20,12 @@ $ pip install git+https://github.com/luiscruz/PyMonsoon
 $ pip install physalia
 ```
 
+You may have to install libusb:
+
+```
+brew install libusb
+```
+
 ## Example
 
 The simplest way to measure something:
@@ -35,10 +41,7 @@ sleep(2) # some work
 energy_consumption, duration, error_flag = power_meter.stop()
 ```
 
-Several things need to be done to make sure we can measure energy consumption in Android devices (e.g., setup WiFi control and disable USB).
-Physalia takes care of that already:
-
-
+Physalia also features more advanced control, allowing to insall APKs, and repeat measurements:
 
 ````
 from physalia.power_meters import MonsoonPowerMeter
