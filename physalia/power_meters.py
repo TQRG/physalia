@@ -7,7 +7,8 @@ import warnings
 import click
 from Monsoon import Operations as operations
 from Monsoon.sampleEngine import SampleEngine
-from Monsoon import LVPM
+from Monsoon import LVPM, HVPM
+import Monsoon.pmapi as pmapi
 
 from physalia.third_party import monsoon_async
 from physalia.utils import android
@@ -67,7 +68,7 @@ class EmulatedPowerMeter(PowerMeter):
         return "Emulated"
 
 class MonsoonPowerMeter(PowerMeter):
-    """PowerMeter implementation for Monsoon.
+    """PowerMeter implementation for Monsoon LVPM.
 
     Make sure the Android device has Passlock disabled.
     Your server and device have to be connected to the same network.
@@ -185,3 +186,28 @@ class MonsoonPowerMeter(PowerMeter):
     def __str__(self):
         """Return the name of this power meter."""
         return "Monsoon"
+
+class MonsoonHVPMPowerMeter(MonsoonPowerMeter):
+    def setup_monsoon(self):
+        """Set up monsoon HVPM.
+
+        Args:
+            voltage: Voltage output of the power monitor.
+            serial: serial number of the power monitor.
+        """
+        click.secho(
+            "Setting up Monsoon {} with {}V...".format(
+                self.serial, self.voltage
+            ),
+            fg='blue'
+        )
+        self.monsoon = HVPM.Monsoon()
+        self.monsoon.setup_usb(self.serial, pmapi.USB_protocol())
+        set_voltage_if_different(self.monsoon, self.voltage)
+        self.engine = SampleEngine(self.monsoon)
+        self.engine.ConsoleOutput(False)
+
+        if android.is_android_device_available():
+            android.reconnect_adb_through_usb()
+        self.monsoon_usb_enabled(True)
+    

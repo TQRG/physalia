@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* fixed writer bug; fixed energy calculation
 * small improvements
 * added success flag; fixed set voltage; surpressed console output
 * test monsoon utils
