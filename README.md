@@ -14,6 +14,8 @@ More info and documentation in the [website](https://tqrg.github.io/physalia/).
 ## Install
 
 ```
+$ python3 -m venv venv
+$ source venv/bin/activate
 $ pip install git+https://github.com/luiscruz/PyMonsoon
 $ pip install physalia
 ```
