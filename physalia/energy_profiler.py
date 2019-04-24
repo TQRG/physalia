@@ -38,7 +38,7 @@ class AndroidUseCase(object):
         self.app_apk = app_apk
         self.app_pkg = app_pkg
         self.app_version = app_version
-        self.power_meter = None
+        self.notes = None
         if run:
             self._run = types.MethodType(run, self)
         if prepare:
@@ -76,12 +76,13 @@ class AndroidUseCase(object):
         try:
             self.prepare()
             power_meter.start()
-            self._run()
+            success = self._run()
             energy_consumption, duration, error_flag = power_meter.stop()
             self.cleanup()
             if error_flag:
                 raise PhysaliaExecutionFailed()
-            return Measurement(
+            
+            measurement = Measurement(
                 time.time(),
                 self.name,
                 self.app_pkg,
@@ -89,8 +90,12 @@ class AndroidUseCase(object):
                 android_utils.get_device_model(),
                 duration,
                 energy_consumption,
-                str(power_meter)
+                str(power_meter),
+                success is None or success,
+                self.notes
             )
+            
+            return measurement
         except KeyboardInterrupt as error:
             raise error
         except BaseException as error:
@@ -120,7 +125,7 @@ class AndroidUseCase(object):
             verbose         Log activiy (default=True).
             count           Run experiment several times (default=30).
             retry_limit     Number of times to retry on error.
-            save_to_csv     File name to store mesasurement.
+            save_to_csv     File name to store measurement.
         Returns: Set of measurements
 
         """

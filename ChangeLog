@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+* fixed writer bug; fixed energy calculation
+* small improvements
+* added success flag; fixed set voltage; surpressed console output
+* test monsoon utils
+* async monsoon: fixed voltage issue
+* using new monsoon library for device lvpm
+* is\_monsoon\_available for new firmware
+* changelog
 * Logic to help generate data reports (#4)
 * Update README.md
 * Update README.md

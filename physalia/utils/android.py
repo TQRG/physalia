@@ -2,7 +2,9 @@
 
 import subprocess
 import re
+
 from whichcraft import which
+import click
 
 def set_charging_enabled(enabled, serialno=None):
     """Enable or disable charging the device."""
@@ -54,13 +56,17 @@ def is_screen_on():
 
 def is_locked():
     """Check whether device is locked."""
-    output = subprocess.check_output(
-        "adb shell service call trust 7",
-        shell=True,
-        universal_newlines=True
-    )
-    match = re.search(r"Parcel\(00000000 00000001", output)
-    return match is not None
+    try:
+        output = subprocess.check_output(
+            "adb shell service call trust 7",
+            shell=True,
+            universal_newlines=True
+        )
+        match = re.search(r"Parcel\(00000000 00000001", output)
+        return match is not None
+    except subprocess.CalledProcessError as e:
+        click.secho('Warning: {}'.format(e), fg='yellow')
+        return True
 
 def wakeup():
     """Wake up device."""
@@ -84,8 +90,11 @@ def unlock(pincode):
     )
 
 def install_apk(apk):
-    """Install apk."""
-    subprocess.check_output(["adb", "install", apk])
+    """Install apk.
+    Accepts Downgrade, grants all requestd permissions,
+    and reinstalls if app already exists.
+    """
+    subprocess.check_output(["adb", "install", "-d", "-g", "-r", apk])
 
 def check_adb():
     """Check whether adb is available."""
@@ -155,4 +164,24 @@ def reconnect_adb_through_usb():
         )
     except subprocess.CalledProcessError:
         pass
+
+def get_package_from_apk(apk_path):
+    aapt = "$ANDROID_HOME/build-tools/27.0.0/aapt"
+    result = subprocess.check_output(
+        aapt + " dump badging {} | awk '/package/{{gsub(\"name=|'\"'\"'\",\"\");  print $2}}'".format(apk_path),
+        shell=True
+    )
+    return str(result.strip(), 'utf-8')
+
+def get_instrumentation_for_app(app_pkg, test_pkg=""):
+    pattern = re.compile("instrumentation:(.*) ")
+    output = subprocess.check_output(
+        "adb shell pm list instrumentation | grep -i {}".format(app_pkg),
+        shell=True
+    )
+    if type(output) is bytes:
+        output = output.decode('utf-8')
+    search = pattern.search(output)
+    if search:
+        return search.group(1)
     
