@@ -33,9 +33,9 @@ The simplest way to measure something:
 ```
 from physalia.power_meters import MonsoonPowerMeter
 from time import sleep
- 
+
  # change voltage and serial number accordingly:
-power_meter = MonsoonPowerMeter(voltage=3.8, serial=12886) 
+power_meter = MonsoonPowerMeter(voltage=3.8, serial=12886)
 power_meter.start()
 sleep(2) # some work
 energy_consumption, duration, error_flag = power_meter.stop()
@@ -53,7 +53,7 @@ power_meter = MonsoonPowerMeter(voltage=3.8, serial=12886)
 
 def run(usecase):
 	sleep(2) # some work
-	
+
 use_case = AndroidUseCase(
   'login',
   'path/to/apk',
@@ -80,3 +80,11 @@ If you find an issue you can actually help fixing please make a pull request of 
 To run all tests and checks locally run:
 
 `$ detox -e py27,py36`
+
+### Debugging
+
+#### Unable to find device
+Try executing with `sudo`.
+
+#### Device doesn't power on
+Connect device to the front of Monsoon with a USB cable.
