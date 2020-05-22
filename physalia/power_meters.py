@@ -106,7 +106,7 @@ class MonsoonPowerMeter(PowerMeter):
                     "Waiting for an Android device...",
                     fg='blue'
                 )
-            if i == 180:
+            if i == 179:
                 raise Exception("Could not find device.")
         android.connect_adb_through_wifi()
         self.monsoon_usb_enabled(False)
@@ -176,7 +176,7 @@ class MonsoonPowerMeter(PowerMeter):
                 sample_hz = 50000
                 delta_time = 1/sample_hz
                 time_deltas = [j-i for i, j in zip(timestamps[:-1], timestamps[1:])]
-                
+
                 energy_consumption = sum(np.array(currents[:-1])*np.array(time_deltas))/1000
                 # energy_consumption = sum(currents)*delta_time
                 duration = timestamps[-1]
@@ -210,4 +210,3 @@ class MonsoonHVPMPowerMeter(MonsoonPowerMeter):
         if android.is_android_device_available():
             android.reconnect_adb_through_usb()
         self.monsoon_usb_enabled(True)
-    
